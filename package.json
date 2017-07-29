@@ -1,0 +1,42 @@
+{
+  "name": "angular-d3-webpack-node-boilerplate",
+  "version": "0.0.1",
+  "description": "A starting project for angular, d3, webpack, node.",
+  "scripts": {
+    "webpack-dev": "webpack-dev-server --config ./webpack.config.js  --port 8089 --http  --inline --history-api-fallback --hot",
+    "express-server": "node ./server.js",
+    "dev": " npm run webpack-dev | npm run express-server",
+    "prod": " webpack --production | node ./server.js",
+    "build-prod": "webpack --production",
+    "run-prod": "node ./server.js"
+  },
+  "dependencies": {
+    "angular": "^1.6.4",
+    "angular-route": "^1.6.5",
+    "d3": "^4.10.0",
+    "express": "^4.15.3",
+    "http": "0.0.0",
+    "request": "^2.81.0",
+    "socket.io": "^2.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.20.0",
+    "babel-loader": "^6.2.9",
+    "babel-polyfill": "*",
+    "babel-preset-es2015": "*",
+    "babel-preset-stage-0": "^6.22.0",
+    "css-loader": "^0.26.1",
+    "exports-loader": "^0.6.3",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^2.24.1",
+    "less": "^2.7.1",
+    "less-loader": "2.2.3",
+    "path": "^0.12.7",
+    "raw-loader": "^0.5.1",
+    "script-loader": "^0.7.0",
+    "style-loader": "0.13.1",
+    "webpack": "1.14.0",
+    "webpack-dev-server": "1.16.2",
+    "http-proxy-middleware": "^0.17.1"
+  }
+}
