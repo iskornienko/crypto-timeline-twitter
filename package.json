@@ -1,5 +1,5 @@
 {
-  "name": "angular-d3-webpack-node-boilerplate",
+  "name": "crypto-twitter-analyzer",
   "version": "0.0.1",
   "description": "A starting project for angular, d3, webpack, node.",
   "scripts": {
