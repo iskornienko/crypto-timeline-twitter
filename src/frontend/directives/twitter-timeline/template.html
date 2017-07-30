@@ -1,0 +1,44 @@
+<div>
+    <svg>
+    </svg>
+
+    <div class="selected-point" ng-show="current">
+        <div class="scroll-list">
+            <div class="tweet-list">
+           <!--    <div id="container"></div> -->
+
+                <div ng-repeat="item in currentTweetList" id="tweet-container-{{item.id}}" class="displayed-tweets"></div>
+
+
+            </div>
+        </div>
+        <div class="tab-bar">
+            <div class="tab positive" ng-click="setTab('positive')" ng-class="{'selected':cTab=='positive'}">
+                <div class="count">{{current.tweets.positiveTweets.length}}</div>
+                Positive</div>
+            <div class="tab" ng-click="setTab('neutral')" ng-class="{'selected':cTab=='neutral'}">
+                <div class="count">{{current.tweets.neutralTweets.length}}</div>
+                Neutral</div>
+            <div class="tab negative" ng-click="setTab('negative')" ng-class="{'selected':cTab=='negative'}">
+                <div class="count">{{current.tweets.negativeTweets.length}}</div>
+                Negative</div>
+        </div>
+    </div>
+
+    <div class="settings">
+        Exchange: <select ng-model="config.exchange">
+        <option value="gdax">GDAX</option>
+        <option value="poloniex">Poloniex</option>
+    </select><br>
+        Product:   <select ng-model="config.product">
+        <option ng-repeat="option in productOptions" value="{{option.id}}">{{option.display_name}}</option>
+    </select><br>
+        Twitter Accounts: <select ng-model="config.accounts" multiple>
+        <option ng-repeat="option in traders" value="{{option}}">{{option}}</option>
+    </select><br>
+        Twitter Filter: <textarea ng-model="config.filter" type="text" spellcheck="false"></textarea><br>
+        Positive Terms: <textarea ng-model="config.positiveTerms" type="text" spellcheck="false"></textarea><br>
+        Negative Terms: <textarea ng-model="config.negativeTerms" type="text" spellcheck="false"></textarea><br>
+    </div>
+
+</div>
