@@ -1,5 +1,5 @@
 body {
-  Font: Roboto;
+  font-family: Roboto;
 }
 
 
@@ -9,6 +9,7 @@ svg, html, body {
   margin: 0;
 }
 
+
 svg {
   position: absolute;
   top: 0;
@@ -16,6 +17,7 @@ svg {
   left: 0;
   right: 0;
 }
+
 
 
 @gray:#888;
@@ -29,7 +31,7 @@ svg {
   width: 500px;
 
   position: absolute;
-  border: 1px solid @gray;
+//  border: 1px solid @gray;
   top: 10px;
   left: 10px;
   padding: 0px 10px;
@@ -54,8 +56,10 @@ svg {
       cursor: pointer;
       padding: 4px 10px;
 
+      font-size: 14px;
       border: 1px solid @gray;
-      border-bottom: none;
+      border-radius: 4px;
+    //  border-bottom: none;
       background-color: white;
       color: @gray;
 
@@ -116,10 +120,56 @@ svg {
   }
 }
 
+.summary {
+  padding: 10px 10px;
+  position: absolute;
+  width: 175px;
+  right: 0;
+  top: 0px;
+  height: 79px;
+  text-align: center;
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
+  .coin {
+    display: block;
+    font-size: 30px;
+    font-weight: bold;
+  }
+  .date {
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  .price {
+    margin-top: 5px;
+    font-size: 18px;
+
+  }
+}
+
 .settings {
   position: absolute;
-  width: 200px;
+  width: 195px;
   right: 0;
-  bottom: 10px;
-
+  top: 100px;
+  overflow: scroll;
+  bottom: 0px;
+  border-left: 1px solid black;
 }
+
+.market-list {
+  table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+    td {
+      text-align: center;
+    }
+    tr {
+      &:hover {
+        background-color: #eeeeee;
+        cursor: pointer;
+      }
+    }
+  }
+}
+

@@ -13,6 +13,8 @@ var sendRequest = require('request');
 //keep client and server in sync
 var io = require('socket.io')(server);
 
+var gdaxFeed = require('./src/backend/gdax-feed.js').feed();
+
 //for hosting content without webpack
 app.use(express.static('dist'));
 
@@ -23,73 +25,81 @@ app.options("*",function(req,res,next){
     res.status(200).end();
 });
 
+var bittrex = require('./src/backend/bittrex-feed')
+var tweets = require('./src/backend/tweets')
 
 
 app.get('/api/candles/:product', (request, response) => {
-
-
-    var url = 'https://api.gdax.com/products/'+request.params.product+'/candles?start=2017-07-15&end=2017-07-30&granularity=3000';
-
-
-    sendRequest({
-        url: url,
-        headers: {
-            'User-Agent': 'request'
-        }
-    }, function (error, requestResponse, body) {
-        if (!error && requestResponse.statusCode == 200) {
-
-         //   resolve(body);
-            response.send(body);
-        } else {
-        //    reject();
-        }
-    })
-
-
-
-
-
-
-
-    /*
-
-    fs = require('fs')
-    fs.readFile('data/BTC-USD.txt', 'utf8', function (err,data) {
-        if (err) {
-            return console.log(err);
-        }
+    bittrex.getCandles(request.params.product).then(function (data) {
         response.send(data);
-    });
-    */
+    })
 });
 
 
 
-app.get('/api/products/:market', (request, response) => {
+app.get('/api/markets/:market', (request, response) => {
 
-    sendRequest({
-        url: 'https://api.gdax.com/products',
-        headers: {
+    bittrex.allBTCMarkets().then(function (data) {
+        tweets.coinTweetCounts().then(function (tweetCounts) {
+            for(var x = 0 ; x < data.length; x++) {
+                data[x].tweets = 0;
+                data[x].users = 0;
+                for(var y = 0; y < tweetCounts.length; y++) {
 
-            //Example: Setting request headers
-            'User-Agent': 'request',
-            //'Authorization' : 'Basic ' + new Buffer(BPM_USER + ':' + BPM_PASS).toString('base64')
-        }
-    }, function (error, requestResponse, body) {
-        if (!error && requestResponse.statusCode == 200) {
+                    if(data[x].MarketName.replace('BTC-','') == tweetCounts[y]._id) {
+                        data[x].tweets = tweetCounts[y].count;
+                        data[x].users = tweetCounts[y].users;
+                        break;
+                    }
+                }
+            }
+            response.send(data);
+        })
+    })
+});
 
-            response.send(body);
-        } else {
-            console.log(body);
-        }
+app.get('/api/tweets/:coin', (request, response) => {
+
+
+    tweets.hoursForCoin(request.params.coin).then(function (data) {
+
+        response.send(data.map(function (tick) {
+
+            var date = new Date();
+            date.setFullYear(tick._id.year);
+            date.setMonth(tick._id.month-1);
+            date.setDate(tick._id.day);
+            date.setHours(tick._id.hour-5);
+            date.setMinutes(0);
+            date.setSeconds(0);
+            date.setMilliseconds(0);
+
+            tick.date = date.getTime();
+
+            return tick;
+        }));
+
     })
 
-    console.log(request.params.market);
+
+
+});
+app.get('/api/tweets/:hour/:coin', (request, response) => {
+
+    console.log(request.params)
+
+    tweets.tweetsForHour(request.params.hour, request.params.coin).then(
+        function (data) {
+            response.send(data);
+        }
+    )
+
+
+
 });
 
 
-
+/*
 app.get('/api/tweets', (request, response) => {
     fs = require('fs')
     fs.readFile('data/tweets3.txt', 'utf8', function (err,data) {
@@ -138,16 +148,6 @@ app.get('/api/tweets', (request, response) => {
             }
             grouped[key].tweets.push(a);
 
-/*
-            if(Math.random() < 0.333) {
-                grouped[key].positiveTweets.push(a);
-            } else if(Math.random() < 0.666) {
-                grouped[key].negativeTweets.push(a);
-            } else {
-                grouped[key].neutralTweets.push(a);
-            }*/
-
-
         });
 
         var gResult = [];
@@ -162,7 +162,7 @@ app.get('/api/tweets', (request, response) => {
 
 
 
-
+*/
 
 
 
@@ -214,9 +214,24 @@ io.on('connection', function(socket) {
         })
     })
 
+
+    socket.on('subscribe-to-feed', function (data) {
+        var sample = {
+            market : '',
+            product : '',
+            granularity : '',
+        }
+
+        gdaxFeed.subscribe('123','gdax','BTC-USD',60, newData => {
+            socket.emit('feed-update',newData);
+        })
+    })
+
+
     socket.on('disconnect', function() {
         var i = allClients.indexOf(socket);
         allClients.splice(i, 1);
+        gdaxFeed.unsubscribe('123');
     });
 });
 

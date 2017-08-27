@@ -16,71 +16,6 @@ var client = new Twitter({
 
 
 var lastMaxId=0;
-function writeUserTweetsToCSV_OnePage(userName, max_id, arrayItem) {
-    var params = {
-        screen_name: Array.isArray(userName) ? userName[arrayItem] : userName ,
-        count:200
-    };
-
-    if(max_id)
-        params.max_id = max_id;
-    lastMaxId = max_id;
-
-    client.get('statuses/user_timeline', params, function(error, tweets, response) {
-        if (!error) {
-
-            var csvStream = csv
-                .createWriteStream({headers: ((params.max_id == undefined) && (arrayItem == 0))})
-                .transform(function(row){
-                    return row;
-                });
-
-            var fileName = Array.isArray(userName) ? 'data/multiple.csv' : "data/"+userName+".csv";
-
-            writableStream = fs.createWriteStream(fileName, {'flags': 'a'});
-
-            writableStream.on("finish", function(){
-                console.log("CSV Page Written!");
-            });
-
-            csvStream.pipe(writableStream);
-
-            var lastTwitId;
-            var twit;
-
-            var x = 0;
-            if (params.max_id) {
-                x = 1;
-                writableStream.write('\n');
-            }
-
-            console.log(tweets.count)
-
-            for(; x < tweets.length; x++) {
-                twit = tweets[x];
-
-                csvStream.write({
-                    id: twit.id,
-                    user: twit.user.screen_name,
-                    date: (new Date (twit.created_at)).getTime(),
-                    retweets: twit.retweet_count,
-                    favorites: twit.favorite_count,
-                    text: twit.text.replace(/(?:\r\n|\r|\n)/g, ' ')});
-                lastTwitId = twit.id;
-            }
-
-            csvStream.end();
-
-            if(tweets.length > 1 && lastTwitId != undefined)
-                writeUserTweetsToCSV_OnePage(userName, lastTwitId, arrayItem)
-            else if (Array.isArray(userName) && userName.length > arrayItem) {
-                writeUserTweetsToCSV_OnePage(userName, null, arrayItem+1)
-            }
-
-        }
-        console.log(error);
-    });
-}
 
 function getUserTweets(userName, max_id, currentData, arrayItem, callback) {
 
@@ -109,6 +44,7 @@ function getUserTweets(userName, max_id, currentData, arrayItem, callback) {
 
                 currentData.push({
                     id: twit.id_str,
+                    numId: twit.id,
                     user: twit.user.screen_name,
                     date: (new Date (twit.created_at)).getTime(),
                     retweets: twit.retweet_count,
@@ -130,13 +66,6 @@ function getUserTweets(userName, max_id, currentData, arrayItem, callback) {
         console.log(error);
     });
 }
-
-
-function exportUserTweetsToCSV(userName) {
-    writeUserTweetsToCSV_OnePage(userName,null,0)
-}
-
-
 
 function getGDAXData(product ,months, granularity) {
 
@@ -186,7 +115,7 @@ var traders = [
 
 //exportUserTweetsToCSV(["NicTrades"]);
 
-/*
+
 getUserTweets(traders, null, [], 0, function (data) {
     fs.writeFile("data/tweets3.txt", JSON.stringify(data), function(err) {
         if(err) {
@@ -195,10 +124,10 @@ getUserTweets(traders, null, [], 0, function (data) {
 
         console.log("The file was saved!");
     });
-});*/
+});
 
 
-
+/*
 getGDAXData('BTC-USD' ,'2017-07-15', (60*50)).then(function (result) {
     fs.writeFile("data/BTC-USD.txt", result, function(err) {
         if(err) {
@@ -209,4 +138,4 @@ getGDAXData('BTC-USD' ,'2017-07-15', (60*50)).then(function (result) {
     });
 });
 
-    
+    */

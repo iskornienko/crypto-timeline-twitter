@@ -1,4 +1,4 @@
-<div>
+<div class="view-container">
     <svg>
     </svg>
 
@@ -7,30 +7,62 @@
             <div class="tweet-list">
            <!--    <div id="container"></div> -->
 
-                <div ng-repeat="item in currentTweetList" id="tweet-container-{{item.id}}" class="displayed-tweets"></div>
+                <div ng-repeat="item in currentTweetList" id="tweet-container-{{item}}" class="displayed-tweets"></div>
 
 
             </div>
         </div>
         <div class="tab-bar">
-            <div class="tab positive" ng-click="setTab('positive')" ng-class="{'selected':cTab=='positive'}">
-                <div class="count">{{current.tweets.positiveTweets.length}}</div>
-                Positive</div>
-            <div class="tab" ng-click="setTab('neutral')" ng-class="{'selected':cTab=='neutral'}">
-                <div class="count">{{current.tweets.neutralTweets.length}}</div>
-                Neutral</div>
-            <div class="tab negative" ng-click="setTab('negative')" ng-class="{'selected':cTab=='negative'}">
-                <div class="count">{{current.tweets.negativeTweets.length}}</div>
-                Negative</div>
+            <div class="tab positive" ng-click="setTab('positive')" ng-class="{'selected':cTab=='positive'}" ng-if="current.positive.length > 0">
+              <!--  <div class="count">{{current.positive.length}}</div> -->
+                {{current.positive.length}} Positive</div>
+            <div class="tab" ng-click="setTab('neutral')" ng-class="{'selected':cTab=='neutral'}" ng-if="current.neutral.length > 0">
+              <!--  <div class="count">{{current.neutral.length}}</div>-->
+                {{current.neutral.length}} Neutral</div>
+            <div class="tab negative" ng-click="setTab('negative')" ng-class="{'selected':cTab=='negative'}" ng-if="current.negative.length > 0">
+              <!--  <div class="count">{{current.negative.length}}</div>-->
+                {{current.negative.length}} Negative</div>
+        </div>
+    </div>
+
+    <div class="summary">
+        <div class="coin"> {{config.product}}</div>
+        <div class="date">
+            {{config.date | date : 'short'}}
+        </div>
+        <div class="price">
+           {{config.price}}
         </div>
     </div>
 
     <div class="settings">
-        Exchange: <select ng-model="config.exchange">
-        <option value="gdax">GDAX</option>
-        <option value="poloniex">Poloniex</option>
-    </select><br>
-        Product:   <select ng-model="config.product">
+
+        <div class="market-list">
+
+            <table>
+                <thead>
+                <tr>
+                    <th ng-click="sortCoins('coin')">Coin</th>
+                    <th ng-click="sortCoins('change')">Change</th>
+                    <th ng-click="sortCoins('tweets')">Tweets</th>
+                    <th ng-click="sortCoins('users')">Users</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="market in markets  | orderBy:sortVal" ng-click="changeMarket(market.MarketName)">
+                    <td>{{market.coin}}</td>
+                    <td>{{market.change.toFixed(0)}}%</td>
+                    <td>{{market.tweets}}</td>
+                    <td>{{market.users}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <!--
+        <select ng-model="config.product">
         <option ng-repeat="option in productOptions" value="{{option.id}}">{{option.display_name}}</option>
     </select><br>
         Twitter Accounts: <select ng-model="config.accounts" multiple>
@@ -39,6 +71,7 @@
         Twitter Filter: <textarea ng-model="config.filter" type="text" spellcheck="false"></textarea><br>
         Positive Terms: <textarea ng-model="config.positiveTerms" type="text" spellcheck="false"></textarea><br>
         Negative Terms: <textarea ng-model="config.negativeTerms" type="text" spellcheck="false"></textarea><br>
+        -->
     </div>
 
 </div>

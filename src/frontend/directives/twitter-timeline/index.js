@@ -16,88 +16,23 @@ let directive = angular.module('twitter-timeline',[])
                     '$scope', '$http', '$element',
                     function ($scope, $http, $element) {
 
-                        $scope.traders = ["cryptousemaki",
-                            "cryptotatlises",
-                            "WolfOfPoloniex",
-                            "CryptoYoda1338",
-                            "ZeusZissou",
-                            "CryptoMast3R",
-                            "CryptoEye111",
-                            "TXWestCapital",
-                            "Fatih87SK",
-                            "vincentbriatore",
-                            "NicTrades",
-                            "pterion2910"];
+                        var socket = io.connect();
+                        socket.on('connect', function(data) {
+                            //connected
+                        });
 
-                        var positiveTerms =
-                            ["bull",
-                                "positive",
-                                "bottom",
-                                "buy",
-                                "breakout",
-                                "good",
-                                "high",
-                                "uptrend",
-                                "like",
-                                "support"];
+                        $scope.sortCoins = function (col) {
+                            $scope.sortVal = col == $scope.sortVal ? '-'+col : col;
+                        }
 
-                        var negativeTerms =
-                            ["bear",
-                                "correction",
-                                "inverted",
-                                "negative",
-                                "sell",
-                                "pullback",
-                                "bad",
-                                "volatile",
-                                "low",
-                                "down",
-                                "resistance"];
 
                         $scope.config = {
                             exchange : 'gdax',
-                            product : 'BTC-USD',
+                            product : 'MCO',
                             accounts : $scope.traders,
-                            positiveTerms : positiveTerms.join(','),
-                            negativeTerms : negativeTerms.join(',')
+                        //    positiveTerms : positiveTerms.join(','),
+                        //    negativeTerms : negativeTerms.join(',')
                         }
-
-                        $scope.$watch('config.product', function () {
-                            var mapCurrency = [
-                                {value: 'BTC',      map: 'BTC'},
-                                {value: 'Bitcoin',  map: 'BTC'},
-                                {value: 'LTC',      map: 'LTC'},
-                                {value: 'Litecoin', map: 'LTC'},
-                                {value: 'ETH',      map: 'ETH'},
-                                {value: 'Ethereum', map: 'ETH'},
-                                {value: 'XRP',      map: 'XRP'},
-                                {value: 'Ripple',   map: 'XRP'},
-                                {value: 'SC',       map: 'SC'},
-                                {value: 'Siacoin',  map: 'SC'},
-                                {value: 'Stratis',  map: 'STRAT'},
-                                {value: 'STRAT',    map: 'STRAT'},
-                                {value: 'ARDR',     map: 'ARDR'},
-                                {value: 'Ardor',    map: 'ARDR'},
-                                {value: 'NXT',      map: 'NXT'},
-                                {value: 'ARDR',      map: 'ARDR'},
-                                {value: 'OMNI',      map: 'OMNI'},
-                                {value: 'BELA',      map: 'BELA'},
-                                {value: 'STEEM',      map: 'STEEM'},
-                                {value: 'VTC',      map: 'VTC'},
-                                {value: 'VIA',      map: 'VIA'}
-                            ];
-
-                            if($scope.config.product == 'BTC-USD') {
-                                $scope.config.filter =  'BTC,Bitcoin'
-
-                            } else if($scope.config.product == 'ETH-USD') {
-                                $scope.config.filter =  'ETH,Ethereum'
-                            } else if($scope.config.product == 'LTC-USD') {
-                                $scope.config.filter =  'LTC,Litecoin'
-
-                            }
-
-                                })
 
 
                         $scope.$watch('config.exchange', function () {
@@ -127,7 +62,7 @@ let directive = angular.module('twitter-timeline',[])
 
                             $element.find('svg').text('');
 
-
+/*
                             for(var x = 0; x < $scope.tweetData.length; x++) {
                                 $scope.tweetData[x].positiveTweets = [];
                                 $scope.tweetData[x].negativeTweets =  [];
@@ -135,8 +70,8 @@ let directive = angular.module('twitter-timeline',[])
 
                                 for(var y = 0; y < $scope.tweetData[x].tweets.length; y++) {
 
-                                    var isPositive = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.positiveTerms.split(','));
-                                    var isNegative = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.negativeTerms.split(','));
+                                    var isPositive;// = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.positiveTerms.split(','));
+                                    var isNegative;// = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.negativeTerms.split(','));
 
                                     if(isNegative) {
                                         $scope.tweetData[x].negativeTweets.push($scope.tweetData[x].tweets[y])
@@ -148,24 +83,84 @@ let directive = angular.module('twitter-timeline',[])
 
                                 }
 
-                            }
+                            }*/
                             
-                            
-                            d3Timeline.drawTimeline($scope.chartData, $element.find('svg')[0], $scope.tweetData,
+                            console.log('CHART DATA', $scope.chartData, $scope.tweetData)
+                            var chart = d3Timeline.timeline($scope.chartData, $element.find('svg')[0], $scope.tweetData,
                                 function (hoverEl) {
 
                                     $scope.current = hoverEl;
-                                    $scope.setTab('neutral')
 
-                               //     console.log('HOVER ',hoverEl)
+                                    console.log('HOVER ',hoverEl)
+                                    $http({
+                                        method:'GET',
+                                        url:'/api/tweets/'+hoverEl.tweets.date+'/'+$scope.config.product
+                                    }).then(function (response) {
+                                        console.log(response);
+                                        $scope.current = response.data;
+                                        $scope.setTab('neutral')
+                                    })
 
+                                 //   $scope.$apply();
+                                }, function (d) {
+                                    $scope.config.date = d.tick[0]*1000;
+                                    $scope.config.price = d.tick[4];
                                     $scope.$apply();
                                 });
+
+/*
+                            var lastPoint =$scope.chartData[$scope.chartData.length-1][0];
+                            setInterval(function () {
+                                lastPoint += 3000;
+                                tl.addPoint([
+                                    lastPoint,2200,2224.82,2217.02,2203.39+Math.random()*1000,174.31514486999959
+                                ])
+                            },200)*/
                         }
 
                         $scope.$watch('[config.product,config.filter, config.accounts]', function () {
                             getData ()
                         })
+
+                        /*
+
+                        socket.emit('subscribe-to-feed', {
+                            market: 'gdax',
+                            product: $scope.config.product,
+                            granularity: 60
+                        })
+
+                        var chart;
+                        socket.on('feed-update', function(data) {
+                            console.log(data);
+                            $scope.chartData = data;
+                            $scope.tweetData = [];
+
+                            $scope.$apply();
+
+                            if(!chart) {
+                                drawChart();
+                            } else {
+                                
+                                chart.addPoint(data[0]);
+                            }
+                        });
+                        */
+
+                        $http({
+                            method:'GET',
+                            url:'/api/markets/bittrex'
+                        }).then(function (response) {
+
+                            for(var x =0; x  < response.data.length; x++) {
+                                response.data[x].change = ((response.data[x].Last-response.data[x].PrevDay)/response.data[x].PrevDay*100);
+                                response.data[x].coin = response.data[x].MarketName.split('-')[1];
+                            }
+                            console.log('ADASDASD', response)
+
+                            $scope.markets = response.data;
+                        });
+
 
                         function getData () {
 
@@ -173,13 +168,29 @@ let directive = angular.module('twitter-timeline',[])
                                 method:'GET',
                                 url:'/api/candles/'+$scope.config.product
                             }).then(function (response) {
+/*
+                                var last = response.data[response.data.length-1];
+                                response.data.push([
+                                    last[0]+60*60,
+                                    last[1],
+                                    last[2],
+                                    last[3],
+                                    last[4],
+                                    last[5]
+                                ])*/
 
                                 $scope.chartData = response.data;
+                                $scope.tweetData = [];
+
+                                console.log('MORE DATA')
+                            //    drawChart ();
 
                                 $http({
                                     method:'GET',
-                                    url:'/api/tweets?filter='+$scope.config.filter+'&accounts='+$scope.config.accounts.join(',')
+                                    url:'/api/tweets/'+$scope.config.product
                                 }).then(function (response2) {
+
+                                    console.log('MORE DATA',response2)
 
                                     $scope.tweetData = response2.data;
                                     drawChart ();
@@ -187,9 +198,16 @@ let directive = angular.module('twitter-timeline',[])
                                 }, function (response) {
                                 })
 
+
                             }, function (response) {
                             })
 
+                        }
+
+                        $scope.changeMarket= function(market){
+                            $scope.config.product = market.split('-')[1];
+                            $scope.current = null;
+                            getData ();
                         }
 
 
@@ -197,11 +215,11 @@ let directive = angular.module('twitter-timeline',[])
                             $scope.cTab=tab;
 
                             if(tab == 'positive')
-                                $scope.currentTweetList = $scope.current.tweets.positiveTweets;
+                                $scope.currentTweetList = $scope.current.positive;
                             else if(tab == 'negative')
-                                $scope.currentTweetList = $scope.current.tweets.negativeTweets;
+                                $scope.currentTweetList = $scope.current.negative;
                             else
-                                $scope.currentTweetList = $scope.current.tweets.neutralTweets;
+                                $scope.currentTweetList = $scope.current.neutral;
 
                             $scope.pullTweets();
                         }
