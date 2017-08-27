@@ -5,7 +5,7 @@ var fs = require("fs");
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var port = 3001;
+var port = 3000;
 
 //call other web endpoints
 var sendRequest = require('request');

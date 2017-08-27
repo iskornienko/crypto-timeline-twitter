@@ -43199,31 +43199,22 @@
 	        template: __webpack_require__(311),
 	        controller: ['$scope', '$http', '$element', function ($scope, $http, $element) {
 
-	            $scope.traders = ["cryptousemaki", "cryptotatlises", "WolfOfPoloniex", "CryptoYoda1338", "ZeusZissou", "CryptoMast3R", "CryptoEye111", "TXWestCapital", "Fatih87SK", "vincentbriatore", "NicTrades", "pterion2910"];
+	            var socket = io.connect();
+	            socket.on('connect', function (data) {
+	                //connected
+	            });
 
-	            var positiveTerms = ["bull", "positive", "bottom", "buy", "breakout", "good", "high", "uptrend", "like", "support"];
-
-	            var negativeTerms = ["bear", "correction", "inverted", "negative", "sell", "pullback", "bad", "volatile", "low", "down", "resistance"];
+	            $scope.sortCoins = function (col) {
+	                $scope.sortVal = col == $scope.sortVal ? '-' + col : col;
+	            };
 
 	            $scope.config = {
 	                exchange: 'gdax',
-	                product: 'BTC-USD',
-	                accounts: $scope.traders,
-	                positiveTerms: positiveTerms.join(','),
-	                negativeTerms: negativeTerms.join(',')
+	                product: 'MCO',
+	                accounts: $scope.traders
+	                //    positiveTerms : positiveTerms.join(','),
+	                //    negativeTerms : negativeTerms.join(',')
 	            };
-
-	            $scope.$watch('config.product', function () {
-	                var mapCurrency = [{ value: 'BTC', map: 'BTC' }, { value: 'Bitcoin', map: 'BTC' }, { value: 'LTC', map: 'LTC' }, { value: 'Litecoin', map: 'LTC' }, { value: 'ETH', map: 'ETH' }, { value: 'Ethereum', map: 'ETH' }, { value: 'XRP', map: 'XRP' }, { value: 'Ripple', map: 'XRP' }, { value: 'SC', map: 'SC' }, { value: 'Siacoin', map: 'SC' }, { value: 'Stratis', map: 'STRAT' }, { value: 'STRAT', map: 'STRAT' }, { value: 'ARDR', map: 'ARDR' }, { value: 'Ardor', map: 'ARDR' }, { value: 'NXT', map: 'NXT' }, { value: 'ARDR', map: 'ARDR' }, { value: 'OMNI', map: 'OMNI' }, { value: 'BELA', map: 'BELA' }, { value: 'STEEM', map: 'STEEM' }, { value: 'VTC', map: 'VTC' }, { value: 'VIA', map: 'VIA' }];
-
-	                if ($scope.config.product == 'BTC-USD') {
-	                    $scope.config.filter = 'BTC,Bitcoin';
-	                } else if ($scope.config.product == 'ETH-USD') {
-	                    $scope.config.filter = 'ETH,Ethereum';
-	                } else if ($scope.config.product == 'LTC-USD') {
-	                    $scope.config.filter = 'LTC,Litecoin';
-	                }
-	            });
 
 	            $scope.$watch('config.exchange', function () {
 	                $http({
@@ -43250,39 +43241,98 @@
 
 	                $element.find('svg').text('');
 
-	                for (var x = 0; x < $scope.tweetData.length; x++) {
-	                    $scope.tweetData[x].positiveTweets = [];
-	                    $scope.tweetData[x].negativeTweets = [];
-	                    $scope.tweetData[x].neutralTweets = [];
+	                /*
+	                                            for(var x = 0; x < $scope.tweetData.length; x++) {
+	                                                $scope.tweetData[x].positiveTweets = [];
+	                                                $scope.tweetData[x].negativeTweets =  [];
+	                                                $scope.tweetData[x].neutralTweets = [];
+	                
+	                                                for(var y = 0; y < $scope.tweetData[x].tweets.length; y++) {
+	                
+	                                                    var isPositive;// = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.positiveTerms.split(','));
+	                                                    var isNegative;// = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.negativeTerms.split(','));
+	                
+	                                                    if(isNegative) {
+	                                                        $scope.tweetData[x].negativeTweets.push($scope.tweetData[x].tweets[y])
+	                                                    } else if (isPositive) {
+	                                                        $scope.tweetData[x].positiveTweets.push($scope.tweetData[x].tweets[y])
+	                                                    } else {
+	                                                        $scope.tweetData[x].neutralTweets.push($scope.tweetData[x].tweets[y])
+	                                                    }
+	                
+	                                                }
+	                
+	                                            }*/
 
-	                    for (var y = 0; y < $scope.tweetData[x].tweets.length; y++) {
-
-	                        var isPositive = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.positiveTerms.split(','));
-	                        var isNegative = doesContainArrayElements($scope.tweetData[x].tweets[y].text, $scope.config.negativeTerms.split(','));
-
-	                        if (isNegative) {
-	                            $scope.tweetData[x].negativeTweets.push($scope.tweetData[x].tweets[y]);
-	                        } else if (isPositive) {
-	                            $scope.tweetData[x].positiveTweets.push($scope.tweetData[x].tweets[y]);
-	                        } else {
-	                            $scope.tweetData[x].neutralTweets.push($scope.tweetData[x].tweets[y]);
-	                        }
-	                    }
-	                }
-
-	                _timeline2.default.drawTimeline($scope.chartData, $element.find('svg')[0], $scope.tweetData, function (hoverEl) {
+	                console.log('CHART DATA', $scope.chartData, $scope.tweetData);
+	                var chart = _timeline2.default.timeline($scope.chartData, $element.find('svg')[0], $scope.tweetData, function (hoverEl) {
 
 	                    $scope.current = hoverEl;
-	                    $scope.setTab('neutral');
 
-	                    //     console.log('HOVER ',hoverEl)
+	                    console.log('HOVER ', hoverEl);
+	                    $http({
+	                        method: 'GET',
+	                        url: '/api/tweets/' + hoverEl.tweets.date + '/' + $scope.config.product
+	                    }).then(function (response) {
+	                        console.log(response);
+	                        $scope.current = response.data;
+	                        $scope.setTab('neutral');
+	                    });
 
+	                    //   $scope.$apply();
+	                }, function (d) {
+	                    $scope.config.date = d.tick[0] * 1000;
+	                    $scope.config.price = d.tick[4];
 	                    $scope.$apply();
 	                });
+
+	                /*
+	                                            var lastPoint =$scope.chartData[$scope.chartData.length-1][0];
+	                                            setInterval(function () {
+	                                                lastPoint += 3000;
+	                                                tl.addPoint([
+	                                                    lastPoint,2200,2224.82,2217.02,2203.39+Math.random()*1000,174.31514486999959
+	                                                ])
+	                                            },200)*/
 	            }
 
 	            $scope.$watch('[config.product,config.filter, config.accounts]', function () {
 	                getData();
+	            });
+
+	            /*
+	             socket.emit('subscribe-to-feed', {
+	                market: 'gdax',
+	                product: $scope.config.product,
+	                granularity: 60
+	            })
+	             var chart;
+	            socket.on('feed-update', function(data) {
+	                console.log(data);
+	                $scope.chartData = data;
+	                $scope.tweetData = [];
+	                 $scope.$apply();
+	                 if(!chart) {
+	                    drawChart();
+	                } else {
+	                    
+	                    chart.addPoint(data[0]);
+	                }
+	            });
+	            */
+
+	            $http({
+	                method: 'GET',
+	                url: '/api/markets/bittrex'
+	            }).then(function (response) {
+
+	                for (var x = 0; x < response.data.length; x++) {
+	                    response.data[x].change = (response.data[x].Last - response.data[x].PrevDay) / response.data[x].PrevDay * 100;
+	                    response.data[x].coin = response.data[x].MarketName.split('-')[1];
+	                }
+	                console.log('ADASDASD', response);
+
+	                $scope.markets = response.data;
 	            });
 
 	            function getData() {
@@ -43291,13 +43341,29 @@
 	                    method: 'GET',
 	                    url: '/api/candles/' + $scope.config.product
 	                }).then(function (response) {
+	                    /*
+	                                                    var last = response.data[response.data.length-1];
+	                                                    response.data.push([
+	                                                        last[0]+60*60,
+	                                                        last[1],
+	                                                        last[2],
+	                                                        last[3],
+	                                                        last[4],
+	                                                        last[5]
+	                                                    ])*/
 
 	                    $scope.chartData = response.data;
+	                    $scope.tweetData = [];
+
+	                    console.log('MORE DATA');
+	                    //    drawChart ();
 
 	                    $http({
 	                        method: 'GET',
-	                        url: '/api/tweets?filter=' + $scope.config.filter + '&accounts=' + $scope.config.accounts.join(',')
+	                        url: '/api/tweets/' + $scope.config.product
 	                    }).then(function (response2) {
+
+	                        console.log('MORE DATA', response2);
 
 	                        $scope.tweetData = response2.data;
 	                        drawChart();
@@ -43305,10 +43371,16 @@
 	                }, function (response) {});
 	            }
 
+	            $scope.changeMarket = function (market) {
+	                $scope.config.product = market.split('-')[1];
+	                $scope.current = null;
+	                getData();
+	            };
+
 	            $scope.setTab = function (tab) {
 	                $scope.cTab = tab;
 
-	                if (tab == 'positive') $scope.currentTweetList = $scope.current.tweets.positiveTweets;else if (tab == 'negative') $scope.currentTweetList = $scope.current.tweets.negativeTweets;else $scope.currentTweetList = $scope.current.tweets.neutralTweets;
+	                if (tab == 'positive') $scope.currentTweetList = $scope.current.positive;else if (tab == 'negative') $scope.currentTweetList = $scope.current.negative;else $scope.currentTweetList = $scope.current.neutral;
 
 	                $scope.pullTweets();
 	            };
@@ -43369,7 +43441,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\n  Font: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  border: 1px solid #888;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  border: 1px solid #888;\n  border-bottom: none;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.settings {\n  position: absolute;\n  width: 200px;\n  right: 0;\n  bottom: 10px;\n}\n", ""]);
+	exports.push([module.id, "body {\n  font-family: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  font-size: 14px;\n  border: 1px solid #888;\n  border-radius: 4px;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.summary {\n  padding: 10px 10px;\n  position: absolute;\n  width: 175px;\n  right: 0;\n  top: 0px;\n  height: 79px;\n  text-align: center;\n  border-left: 1px solid black;\n  border-bottom: 1px solid black;\n}\n.summary .coin {\n  display: block;\n  font-size: 30px;\n  font-weight: bold;\n}\n.summary .date {\n  margin-top: 5px;\n  font-size: 14px;\n}\n.summary .price {\n  margin-top: 5px;\n  font-size: 18px;\n}\n.settings {\n  position: absolute;\n  width: 195px;\n  right: 0;\n  top: 100px;\n  overflow: scroll;\n  bottom: 0px;\n  border-left: 1px solid black;\n}\n.market-list table {\n  width: 100%;\n  font-size: 12px;\n  border-collapse: collapse;\n}\n.market-list table td {\n  text-align: center;\n}\n.market-list table tr:hover {\n  background-color: #eeeeee;\n  cursor: pointer;\n}\n", ""]);
 
 	// exports
 
@@ -43701,10 +43773,11 @@
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	exports.default = {
-	    drawTimeline: function drawTimeline(data, element, tweets, hoverCallBack) {
+	    timeline: function timeline(data, element, tweets, hoverCallBack, overCallBack) {
+
 	        console.log(data, element, window);
 
-	        var screenW = element.clientWidth;
+	        var screenW = element.clientWidth - 200;
 	        var screenH = element.clientHeight;
 
 	        console.log(screenW, screenH);
@@ -43750,49 +43823,80 @@
 	        y.domain([yExtent[0] - spacing, yExtent[1] + spacing]);
 
 	        // Add the valueline path.
-	        svg.append("path").data([data]).attr("class", "line").attr("d", valueline);
+	        var path = svg.append("path").data([data]).attr("class", "line").attr("d", valueline);
+
+	        var tCountY = d3.scaleLinear().range([0, height / 3]);
+	        var tCountYExtent = d3.extent(tweets, function (d) {
+	            return d.count;
+	        });
+	        tCountY.domain([0, tCountYExtent[1]]);
 
 	        var tweetLine = svg.append("g").selectAll(".tweets").data(tweets).enter().append("g").attr("class", "tweets").attr("transform", function (d) {
 	            //   console.log(d)
 	            var chartEl = getElForDate(d.date);
-	            return "translate(" + x(d.date) + "," + y(chartEl[4]) + ")";
+	            return "translate(" + x(d.date) + "," + height / 2 + ")";
+	            //    return "translate("+x(d.date)+","+ y(chartEl[4]) +")"
 	        });
 
+	        var tweetLineSpacing = 2;
+	        function neutralTweetOffset(d) {
+	            return tCountY(d.count - d.pos - d.neg) / 2;
+	        }
+
 	        tweetLine.append("line").attr("class", "tweet").attr("x1", 0).attr("y1", function (d) {
-	            return d.neutralTweets.length / 2 * -1 * 15;
+	            return neutralTweetOffset(d) * -1;
 	        }).attr("x2", 0).attr("y2", function (d) {
-	            return d.neutralTweets.length / 2 * 15;
+	            return neutralTweetOffset(d);
 	        });
 
 	        tweetLine.append("line").attr("class", "tweet positive").attr("x1", 0).attr("y1", function (d) {
-	            return d.neutralTweets.length / 2 * -1 * 15 - 4;
+	            return neutralTweetOffset(d) * -1 - tweetLineSpacing;
 	        }).attr("x2", 0).attr("y2", function (d) {
-	            return (d.neutralTweets.length / 2 * -1 - d.positiveTweets.length) * 15 - 4;
+	            return neutralTweetOffset(d) * -1 - tCountY(d.pos) - tweetLineSpacing;
 	        });
 
 	        tweetLine.append("line").attr("class", "tweet negative").attr("x1", 0).attr("y1", function (d) {
-	            return d.neutralTweets.length / 2 * 15 + 4;
+	            return neutralTweetOffset(d) + tweetLineSpacing;
 	        }).attr("x2", 0).attr("y2", function (d) {
-	            return (d.neutralTweets.length / 2 + d.negativeTweets.length) * 15 + 4;
+	            return neutralTweetOffset(d) + tCountY(d.neg) + tweetLineSpacing;
 	        });
 
 	        var focus = svg.append("g").attr("class", "focus").attr("r", 4.5).style("display", "none");
-
-	        focus.append("rect").attr("class", "hover-select").attr("x", 5).attr("y", -20).attr("width", 90).attr("height", 40);
-
+	        /*
+	                focus.append("rect")
+	                    .attr("class", "hover-select")
+	                    .attr("x", 5)
+	                    .attr("y", -20)
+	                    .attr("width", 90)
+	                    .attr("height", 40);
+	        */
 	        focus.append("circle").attr("r", 4.5);
 
-	        focus.append("text").attr("class", "current").attr("x", 9).attr("y", 9).attr("dy", ".35em");
+	        focus.append("line").attr("class", "target").attr("x1", 0).attr("y1", 6).attr("y2", 10000).attr("x2", 0);
 
-	        focus.append("text").attr("class", "time").attr("x", 9).attr("y", -9).attr("dy", ".35em");
+	        focus.append("line").attr("class", "target").attr("x1", 0).attr("y1", -6).attr("y2", -10000).attr("x2", 0);
+
 	        /*
+	                focus.append("text")
+	                    .attr("class", "current")
+	                    .attr("x", 9)
+	                    .attr("y", 9)
+	                    .attr("dy", ".35em");
+	        
+	                focus.append("text")
+	                    .attr("class", "time")
+	                    .attr("x", 9)
+	                    .attr("y", -9)
+	                    .attr("dy", ".35em");
+	                    */
 	        /*
-	        // Add the X Axis
-	        svg.append("g")
-	            .attr("transform", "translate(0," + height + ")")
-	            .call(d3.axisBottom(x));
-	         // Add the Y Axis
-	        svg.append("g")
+	         /*
+	         // Add the X Axis
+	         svg.append("g")
+	         .attr("transform", "translate(0," + height + ")")
+	         .call(d3.axisBottom(x));
+	          // Add the Y Axis
+	         svg.append("g")
 	         .call(d3.axisLeft(y));
 	         */
 
@@ -43845,16 +43949,189 @@
 	                tweets: getElForDateTweet(x0)
 	            };
 	            /*
-	                        hoverCallBack( {
-	                            tick: d,
-	                            tweets: getElForDateTweet(x0)
-	                        })
-	            */
+	             hoverCallBack( {
+	             tick: d,
+	             tweets: getElForDateTweet(x0)
+	             })
+	             */
+
+	            overCallBack({
+	                tick: d
+	            });
 	            focus.attr("transform", "translate(" + x(d[0] * 1000) + "," + y(d[4]) + ")");
-	            focus.select(".current").text(d[4]);
-	            focus.select(".time").text(d3.timeFormat("%b %e %H:%M")(new Date(d[0] * 1000)));
+	            /* focus.select(".current").text(d[4]);
+	             focus.select(".time").text(d3.timeFormat("%b %e %H:%M")(new Date(d[0]*1000)));*/
 	        }
+
+	        return {
+	            addPoint: function addPoint(nPoint) {
+
+	                data.push(nPoint);
+
+	                console.log(svg.select('.line'));
+	                x.domain(d3.extent(data, function (d) {
+	                    return d[0] * 1000;
+	                }));
+
+	                svg.select('path').data([data]).attr("d", d3.line().x(function (d) {
+	                    return x(d[0] * 1000);
+	                }).y(function (d) {
+	                    return y(d[4]);
+	                })).attr("transform", null);
+
+	                data.shift();
+	            }
+
+	        };
 	    }
+
+	    /*
+	    drawTimeline: function (data, element, tweets, hoverCallBack) {
+	        console.log(data, element, window);
+	         var screenW = element.clientWidth-200;
+	        var screenH = element.clientHeight;
+	         console.log(screenW,screenH)
+	         // set the dimensions and margins of the graph
+	        var margin = {top: 0, right: 0, bottom: 0, left: 0},
+	        width = screenW - margin.left - margin.right,
+	        height = screenH - margin.top - margin.bottom;
+	         // parse the date / time
+	        var parseTime = d3.timeParse("%d-%b-%y");
+	         // set the ranges
+	        var x = d3.scaleTime().range([0, width]);
+	        var y = d3.scaleLinear().range([height, 0]);
+	         // define the line
+	        var valueline = d3.line()
+	            .x(function(d) { return x(d[0]*1000); })
+	            .y(function(d) { return y(d[4]); });
+	          data.sort(function(a, b) {
+	            return a[0] - b[0];
+	        });
+	         tweets.sort(function(a, b) {
+	            return a.date - b.date;
+	        });
+	         var svg = d3.select(element)
+	        .append("g")
+	        .attr("transform",
+	            "translate(" + margin.left + "," + margin.top + ")");
+	         // Scale the range of the data
+	        x.domain(d3.extent(data, function(d) { return d[0]*1000; }));
+	         var yExtent = d3.extent(data, function(d) { return d[4]; });
+	        var spacing = (yExtent[1]-yExtent[0])*.2; //add a little space above and below the max and min of the chart
+	        y.domain([yExtent[0]-spacing,yExtent[1]+spacing]);
+	         // Add the valueline path.
+	        svg.append("path")
+	            .data([data])
+	            .attr("class", "line")
+	            .attr("d", valueline);
+	         var tweetLine = svg.append("g")
+	            .selectAll(".tweets")
+	            .data(tweets)
+	            .enter()
+	            .append("g")
+	            .attr("class", "tweets")
+	            .attr("transform", function (d) {
+	             //   console.log(d)
+	                var chartEl = getElForDate (d.date);
+	                return "translate("+x(d.date)+","+ y(chartEl[4]) +")"
+	            });
+	         tweetLine
+	            .append("line")
+	            .attr("class", "tweet")
+	            .attr("x1", 0)
+	            .attr("y1", function (d) {
+	                return ((d.neg)/2*-1)*15
+	            })
+	            .attr("x2", 0)
+	            .attr("y2", function (d) {
+	                return ((d.count)/2)*15
+	            })
+	         tweetLine
+	            .append("line")
+	            .attr("class", "tweet positive")
+	            .attr("x1", 0)
+	            .attr("y1", function (d) {
+	                return ((d.count)/2*-1)*15-4
+	            })
+	            .attr("x2", 0)
+	            .attr("y2", function (d) {
+	                return (((d.count)/2*-1)-d.pos)*15-4
+	            })
+	          tweetLine
+	            .append("line")
+	            .attr("class", "tweet negative")
+	            .attr("x1", 0)
+	            .attr("y1", function (d) {
+	                return ((d.count)/2)*15+4
+	            })
+	            .attr("x2", 0)
+	            .attr("y2", function (d) {
+	                return ((d.count)/2+d.neg)*15+4
+	            })
+	           var focus = svg.append("g")
+	            .attr("class", "focus")
+	            .attr("r", 4.5)
+	            .style("display", "none");
+	         focus.append("rect")
+	            .attr("class", "hover-select")
+	            .attr("x", 5)
+	            .attr("y", -20)
+	            .attr("width", 90)
+	            .attr("height", 40);
+	         focus.append("circle")
+	            .attr("r", 4.5);
+	         focus.append("text")
+	            .attr("class", "current")
+	            .attr("x", 9)
+	            .attr("y", 9)
+	            .attr("dy", ".35em");
+	         focus.append("text")
+	            .attr("class", "time")
+	            .attr("x", 9)
+	            .attr("y", -9)
+	            .attr("dy", ".35em");
+	           svg.append("rect")
+	            .attr("class", "overlay")
+	            .attr("width", width)
+	            .attr("height", height)
+	            .on("click", function () {
+	                hoverCallBack(lastMove);
+	            })
+	            .on("mouseover", function() { focus.style("display", null); })
+	            .on("mouseout", function() { focus.style("display", "none"); })
+	            .on("mousemove", mousemove);
+	          function getElForDate (x0) {
+	            var bisectDate = d3.bisector(function(d) { return +d[0]*1000; }).left;
+	             var i = bisectDate(data, x0, 1),
+	                d0 = data[i - 1],
+	                d1 = data[i],
+	                d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
+	             return d;
+	        }
+	         function getElForDateTweet (x0) {
+	             var bisectDate = d3.bisector(function(d) { return +d.date; }).left;
+	             var i = bisectDate(tweets, x0, 1),
+	                d0 = tweets[i - 1],
+	                d1 = tweets[i],
+	                d;
+	                 if(d0 && d1)
+	                    d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+	             return d;
+	        }
+	         var lastMove;
+	         function mousemove() {
+	             var x0 = x.invert(d3.mouse(this)[0]);
+	            var d = getElForDate (x0);
+	             lastMove = {
+	                tick: d,
+	                tweets: getElForDateTweet(x0)
+	            };
+	             focus.attr("transform", "translate(" + x(d[0]*1000) + "," + y(d[4]) + ")");
+	            focus.select(".current").text(d[4]);
+	            focus.select(".time").text(d3.timeFormat("%b %e %H:%M")(new Date(d[0]*1000)));
+	        }
+	    }\
+	    */
 	};
 
 /***/ },
@@ -60808,7 +61085,7 @@
 
 
 	// module
-	exports.push([module.id, ".line {\n  fill: none;\n  stroke: steelblue;\n  stroke-width: 1px;\n}\n.overlay {\n  fill: none;\n  pointer-events: all;\n}\n.focus circle {\n  fill: none;\n  stroke: black;\n  stroke-width: 2;\n}\nrect.hover-select {\n  fill: white;\n}\n.tweets {\n  opacity: 0.6;\n}\nline.tweet {\n  stroke-width: 4;\n  stroke: #888;\n}\nline.tweet.positive {\n  stroke: #4cae4c;\n}\nline.tweet.negative {\n  stroke: #d43f3a;\n}\n", ""]);
+	exports.push([module.id, ".line {\n  fill: none;\n  stroke: steelblue;\n  stroke-width: 1px;\n}\n.overlay {\n  fill: none;\n  pointer-events: all;\n}\n.focus circle {\n  fill: none;\n  stroke: black;\n  stroke-width: 2;\n}\nsvg {\n  overflow: hidden;\n}\nrect.hover-select {\n  fill: white;\n}\n.tweets {\n  opacity: 0.6;\n}\nline.tweet {\n  stroke-width: 4;\n  stroke: #888;\n}\nline.tweet.positive {\n  stroke: #4cae4c;\n}\nline.tweet.negative {\n  stroke: #d43f3a;\n}\nline.target {\n  stroke-width: 1;\n  stroke: #000;\n}\n", ""]);
 
 	// exports
 
@@ -60817,7 +61094,7 @@
 /* 311 */
 /***/ function(module, exports) {
 
-	module.exports = "<div>\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item.id}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\">\n                <div class=\"count\">{{current.tweets.positiveTweets.length}}</div>\n                Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\">\n                <div class=\"count\">{{current.tweets.neutralTweets.length}}</div>\n                Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\">\n                <div class=\"count\">{{current.tweets.negativeTweets.length}}</div>\n                Negative</div>\n        </div>\n    </div>\n\n    <div class=\"settings\">\n        Exchange: <select ng-model=\"config.exchange\">\n        <option value=\"gdax\">GDAX</option>\n        <option value=\"poloniex\">Poloniex</option>\n    </select><br>\n        Product:   <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n    </div>\n\n</div>"
+	module.exports = "<div class=\"view-container\">\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\" ng-if=\"current.positive.length > 0\">\n              <!--  <div class=\"count\">{{current.positive.length}}</div> -->\n                {{current.positive.length}} Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\" ng-if=\"current.neutral.length > 0\">\n              <!--  <div class=\"count\">{{current.neutral.length}}</div>-->\n                {{current.neutral.length}} Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\" ng-if=\"current.negative.length > 0\">\n              <!--  <div class=\"count\">{{current.negative.length}}</div>-->\n                {{current.negative.length}} Negative</div>\n        </div>\n    </div>\n\n    <div class=\"summary\">\n        <div class=\"coin\"> {{config.product}}</div>\n        <div class=\"date\">\n            {{config.date | date : 'short'}}\n        </div>\n        <div class=\"price\">\n           {{config.price}}\n        </div>\n    </div>\n\n    <div class=\"settings\">\n\n        <div class=\"market-list\">\n\n            <table>\n                <thead>\n                <tr>\n                    <th ng-click=\"sortCoins('coin')\">Coin</th>\n                    <th ng-click=\"sortCoins('change')\">Change</th>\n                    <th ng-click=\"sortCoins('tweets')\">Tweets</th>\n                    <th ng-click=\"sortCoins('users')\">Users</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr ng-repeat=\"market in markets  | orderBy:sortVal\" ng-click=\"changeMarket(market.MarketName)\">\n                    <td>{{market.coin}}</td>\n                    <td>{{market.change.toFixed(0)}}%</td>\n                    <td>{{market.tweets}}</td>\n                    <td>{{market.users}}</td>\n                </tr>\n                </tbody>\n            </table>\n\n        </div>\n\n\n        <!--\n        <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        -->\n    </div>\n\n</div>"
 
 /***/ },
 /* 312 */
