@@ -7,6 +7,8 @@ Flow:
 
 var Twitter = require('twitter');
 
+var fs = require('fs');
+
 var sendRequest = require('request');
 
 var Promise = require('promise');
@@ -285,6 +287,7 @@ MongoClient.connect(url, function (err, db) {
         })
 });*/
 
+/*
 bittrex.allBTCMarketCoins().then(function (allCoins) {
 
     MongoClient.connect(url, function (err, db) {
@@ -333,13 +336,49 @@ bittrex.allBTCMarketCoins().then(function (allCoins) {
         });
     });
 });
+*/
 /*
 */
 
 
 
-/*
- client.get('search/tweets', {q: '$MCO', result_type: 'recent', count: '300'}, function(error, tweets, response) {
- console.log(tweets);
- });
- */
+var allTweets = [];
+
+function getSearchTweets(max_id_str) {
+    console.log(max_id_str)
+    client.get('search/tweets', {q: '$MCO', result_type: 'recent', count: '300', max_id: max_id_str}, function(error, tweets, response) {
+        var dt;
+
+        var readyTweets = tweets.statuses.map(function (tweet) {
+            var tweet = tweetTransform(tweet);
+
+            dt = new Date(tweet.date);
+          //  console.log(dt)
+
+            return tweet
+        });
+
+        allTweets = allTweets.concat(readyTweets)
+
+        console.log(dt)
+        if(dt && dt.getDate() > 22) {
+            setTimeout(function () {
+                getSearchTweets(tweets.search_metadata.next_results.split('&')[0].split('=')[1])
+            }, 500)
+            console.log(tweets.search_metadata);
+        } else {
+            fs.writeFile('data/mco_export.txt', JSON.stringify(allTweets), function (err) {
+                if (err) return console.log(err);
+                console.log('Hello World > helloworld.txt');
+            });
+        }
+        console.log(error)
+
+
+    });
+}
+
+
+
+
+getSearchTweets()

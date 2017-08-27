@@ -43825,7 +43825,7 @@
 	        // Add the valueline path.
 	        var path = svg.append("path").data([data]).attr("class", "line").attr("d", valueline);
 
-	        var tCountY = d3.scaleLinear().range([0, height / 3]);
+	        var tCountY = d3.scaleLinear().range([0, height / 1.8]);
 	        var tCountYExtent = d3.extent(tweets, function (d) {
 	            return d.count;
 	        });

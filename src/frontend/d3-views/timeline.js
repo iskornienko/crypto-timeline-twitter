@@ -57,7 +57,7 @@ export default {
             .attr("d", valueline);
 
 
-        var tCountY = d3.scaleLinear().range([0,height/3]);
+        var tCountY = d3.scaleLinear().range([0,height/1.8]);
         var tCountYExtent = d3.extent(tweets, function(d) { return d.count; });
         tCountY.domain([0,tCountYExtent[1]]);
 
