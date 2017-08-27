@@ -43273,7 +43273,7 @@
 	                                            }*/
 
 	                console.log('CHART DATA', $scope.chartData, $scope.tweetData);
-	                var chart = _timeline2.default.timeline($scope.chartData, $element.find('svg')[0], $scope.tweetData, function (hoverEl) {
+	                var chart = _timeline2.default.timeline($scope.chartData, $scope.btcChartData, $element.find('svg')[0], $scope.tweetData, function (hoverEl) {
 
 	                    $scope.current = hoverEl;
 
@@ -43346,11 +43346,18 @@
 	            }
 	            refreshCoins();
 
+	            $http({
+	                method: 'GET',
+	                url: '/api/candles/USDT-BTC'
+	            }).then(function (response) {
+	                $scope.btcChartData = response.data;
+	            });
+
 	            function getData() {
 
 	                $http({
 	                    method: 'GET',
-	                    url: '/api/candles/' + $scope.config.product
+	                    url: '/api/candles/BTC-' + $scope.config.product
 	                }).then(function (response) {
 	                    /*
 	                                                    var last = response.data[response.data.length-1];
@@ -43452,7 +43459,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\n  font-family: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  font-size: 14px;\n  border: 1px solid #888;\n  border-radius: 4px;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.summary {\n  padding: 10px 10px;\n  position: absolute;\n  width: 175px;\n  right: 0;\n  top: 0px;\n  height: 79px;\n  text-align: center;\n  border-left: 1px solid black;\n  border-bottom: 1px solid black;\n}\n.summary .coin {\n  display: block;\n  font-size: 30px;\n  font-weight: bold;\n}\n.summary .date {\n  margin-top: 5px;\n  font-size: 14px;\n}\n.summary .price {\n  margin-top: 5px;\n  font-size: 18px;\n}\n.settings {\n  position: absolute;\n  width: 195px;\n  right: 0;\n  top: 100px;\n  overflow: scroll;\n  bottom: 0px;\n  border-left: 1px solid black;\n}\n.market-list table {\n  width: 100%;\n  font-size: 12px;\n  border-collapse: collapse;\n}\n.market-list table td {\n  text-align: center;\n}\n.market-list table tr:hover {\n  background-color: #eeeeee;\n  cursor: pointer;\n}\n", ""]);
+	exports.push([module.id, "body {\n  font-family: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  font-size: 14px;\n  border: 1px solid #888;\n  border-radius: 4px;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.summary {\n  padding: 10px 10px;\n  position: absolute;\n  width: 175px;\n  right: 0;\n  top: 0px;\n  height: 79px;\n  text-align: center;\n  border-left: 1px solid black;\n  border-bottom: 1px solid black;\n}\n.summary .coin {\n  display: block;\n  font-size: 30px;\n  font-weight: bold;\n  color: steelblue;\n}\n.summary .date {\n  margin-top: 5px;\n  font-size: 14px;\n}\n.summary .price {\n  margin-top: 5px;\n  font-size: 18px;\n}\n.settings {\n  position: absolute;\n  width: 195px;\n  right: 0;\n  top: 100px;\n  overflow: scroll;\n  bottom: 0px;\n  border-left: 1px solid black;\n}\n.market-list table {\n  width: 100%;\n  font-size: 12px;\n  border-collapse: collapse;\n}\n.market-list table td {\n  text-align: center;\n}\n.market-list table tr:hover {\n  background-color: #eeeeee;\n  cursor: pointer;\n}\n", ""]);
 
 	// exports
 
@@ -43784,7 +43791,7 @@
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	exports.default = {
-	    timeline: function timeline(data, element, tweets, hoverCallBack, overCallBack) {
+	    timeline: function timeline(data, btcChartData, element, tweets, hoverCallBack, overCallBack) {
 
 	        console.log(data, element, window);
 
@@ -43805,11 +43812,19 @@
 	        var x = d3.scaleTime().range([0, width]);
 	        var y = d3.scaleLinear().range([height, 0]);
 
+	        var yBTC = d3.scaleLinear().range([height, 0]);
+
 	        // define the line
 	        var valueline = d3.line().x(function (d) {
 	            return x(d[0] * 1000);
 	        }).y(function (d) {
 	            return y(d[4]);
+	        });
+
+	        var valuelineBTC = d3.line().x(function (d) {
+	            return x(d[0] * 1000);
+	        }).y(function (d) {
+	            return yBTC(d[4]);
 	        });
 
 	        data.sort(function (a, b) {
@@ -43835,6 +43850,14 @@
 
 	        // Add the valueline path.
 	        var path = svg.append("path").data([data]).attr("class", "line").attr("d", valueline);
+
+	        var yExtentBTC = d3.extent(btcChartData, function (d) {
+	            return d[4];
+	        });
+	        var spacingBTC = (yExtentBTC[1] - yExtentBTC[0]) * .2; //add a little space above and below the max and min of the chart
+	        yBTC.domain([yExtentBTC[0] - spacing, yExtentBTC[1] + spacing]);
+
+	        var pathBTC = svg.append("path").data([btcChartData]).attr("class", "line-btc").attr("d", valuelineBTC);
 
 	        var tCountY = d3.scaleLinear().range([0, height / 1.8]);
 	        var tCountYExtent = d3.extent(tweets, function (d) {
@@ -61096,7 +61119,7 @@
 
 
 	// module
-	exports.push([module.id, ".line {\n  fill: none;\n  stroke: steelblue;\n  stroke-width: 1px;\n}\n.overlay {\n  fill: none;\n  pointer-events: all;\n}\n.focus circle {\n  fill: none;\n  stroke: black;\n  stroke-width: 2;\n}\nsvg {\n  overflow: hidden;\n}\nrect.hover-select {\n  fill: white;\n}\n.tweets {\n  opacity: 0.6;\n}\nline.tweet {\n  stroke-width: 4;\n  stroke: #888;\n}\nline.tweet.positive {\n  stroke: #4cae4c;\n}\nline.tweet.negative {\n  stroke: #d43f3a;\n}\nline.target {\n  stroke-width: 1;\n  stroke: #000;\n}\n", ""]);
+	exports.push([module.id, ".line {\n  fill: none;\n  stroke: steelblue;\n  stroke-width: 1px;\n}\n.line-btc {\n  fill: none;\n  stroke: #aaa;\n  stroke-width: 1px;\n  stroke-dasharray: 5,5;\n}\n.overlay {\n  fill: none;\n  pointer-events: all;\n}\n.focus circle {\n  fill: none;\n  stroke: black;\n  stroke-width: 2;\n}\nsvg {\n  overflow: hidden;\n}\nrect.hover-select {\n  fill: white;\n}\n.tweets {\n  opacity: 0.6;\n}\nline.tweet {\n  stroke-width: 4;\n  stroke: #888;\n}\nline.tweet.positive {\n  stroke: #4cae4c;\n}\nline.tweet.negative {\n  stroke: #d43f3a;\n}\nline.target {\n  stroke-width: 1;\n  stroke: #000;\n}\n", ""]);
 
 	// exports
 

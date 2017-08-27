@@ -93,7 +93,7 @@ let directive = angular.module('twitter-timeline',[])
                             }*/
                             
                             console.log('CHART DATA', $scope.chartData, $scope.tweetData)
-                            var chart = d3Timeline.timeline($scope.chartData, $element.find('svg')[0], $scope.tweetData,
+                            var chart = d3Timeline.timeline($scope.chartData, $scope.btcChartData, $element.find('svg')[0], $scope.tweetData,
                                 function (hoverEl) {
 
                                     $scope.current = hoverEl;
@@ -172,12 +172,19 @@ let directive = angular.module('twitter-timeline',[])
                         }
                         refreshCoins ();
 
+                        $http({
+                            method:'GET',
+                            url:'/api/candles/USDT-BTC'
+                        }).then(function (response) {
+                            $scope.btcChartData = response.data;
+                        });
+
 
                         function getData () {
 
                             $http({
                                 method:'GET',
-                                url:'/api/candles/'+$scope.config.product
+                                url:'/api/candles/BTC-'+$scope.config.product
                             }).then(function (response) {
 /*
                                 var last = response.data[response.data.length-1];

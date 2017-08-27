@@ -56,8 +56,10 @@ module.exports = {
     getCandles: function (product) {
 
         var promise = new Promise(function (resolve, reject) {
+
+
             bittrex.getcandles({
-                marketName: 'BTC-'+product,
+                marketName: product,
                 tickInterval: 'thirtyMin'
             }, function( data, err ) {
 
@@ -66,6 +68,7 @@ module.exports = {
                 })
 
                 var hours  = 24*2*5;
+                console.log(data);
 
                 resolve(data.slice(data.length-hours, data.length));
             });

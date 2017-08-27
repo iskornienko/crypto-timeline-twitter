@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import "./timeline.less";
 
 export default {
-    timeline: function (data, element, tweets, hoverCallBack, overCallBack) {
+    timeline: function (data,btcChartData, element, tweets, hoverCallBack, overCallBack) {
 
         console.log(data, element, window);
 
@@ -24,11 +24,18 @@ export default {
         var x = d3.scaleTime().range([0, width]);
         var y = d3.scaleLinear().range([height, 0]);
 
+
+        var yBTC = d3.scaleLinear().range([height, 0]);
+
         // define the line
         var valueline = d3.line()
             .x(function(d) { return x(d[0]*1000); })
             .y(function(d) { return y(d[4]); });
 
+
+        var valuelineBTC = d3.line()
+            .x(function(d) { return x(d[0]*1000); })
+            .y(function(d) { return yBTC(d[4]); });
 
         data.sort(function(a, b) {
             return a[0] - b[0];
@@ -55,6 +62,16 @@ export default {
             .data([data])
             .attr("class", "line")
             .attr("d", valueline);
+
+        var yExtentBTC = d3.extent(btcChartData, function(d) { return d[4]; });
+        var spacingBTC = (yExtentBTC[1]-yExtentBTC[0])*.2; //add a little space above and below the max and min of the chart
+        yBTC.domain([yExtentBTC[0]-spacing,yExtentBTC[1]+spacing]);
+
+
+        var pathBTC = svg.append("path")
+            .data([btcChartData])
+            .attr("class", "line-btc")
+            .attr("d", valuelineBTC);
 
 
         var tCountY = d3.scaleLinear().range([0,height/1.8]);
