@@ -65,11 +65,11 @@ app.get('/api/tweets/:coin', (request, response) => {
 
         response.send(data.map(function (tick) {
 
-            var date = new Date();
-            date.setFullYear(tick._id.year);
-            date.setMonth(tick._id.month-1);
-            date.setDate(tick._id.day);
-            date.setHours(tick._id.hour-5);
+            var date = new Date(tick.sampleDate);
+        //    date.setFullYear(tick._id.year);
+        //    date.setMonth(tick._id.month-1);
+       //     date.setDate(tick._id.day);
+        //    date.setHours(tick._id.hour-5);
             date.setMinutes(0);
             date.setSeconds(0);
             date.setMilliseconds(0);

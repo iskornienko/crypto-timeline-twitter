@@ -46,6 +46,7 @@ module.exports = {
                             day: {$dayOfMonth: "$date"},
                             hour: {$hour: "$date"},
                         },
+                        "sampleDate" : {"$first" : '$date'},
                         "count": { "$sum": 1 },
                         "neg": { "$sum": '$neg' },
                         "pos": { "$sum": '$pos' }
