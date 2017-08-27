@@ -43211,20 +43211,28 @@
 	            $scope.config = {
 	                exchange: 'gdax',
 	                product: 'MCO',
-	                accounts: $scope.traders
+	                accounts: $scope.traders,
+	                exclusive: false
 	                //    positiveTerms : positiveTerms.join(','),
 	                //    negativeTerms : negativeTerms.join(',')
-	            };
 
-	            $scope.$watch('config.exchange', function () {
-	                $http({
-	                    method: 'GET',
-	                    url: '/api/products/' + $scope.config.exchange
-	                }).then(function (response) {
-	                    console.log(response);
 
-	                    $scope.productOptions = response.data;
-	                });
+	                /*
+	                                        $scope.$watch('config.exchange', function () {
+	                                            $http({
+	                                                method:'GET',
+	                                                url:'/api/products/'+$scope.config.exchange+'/'+$scope.config.exclusive
+	                                            }).then(function (response) {
+	                                                console.log(response)
+	                
+	                                                $scope.productOptions = response.data;
+	                                            })
+	                                        })
+	                */
+
+	            };$scope.$watch('config.exclusive', function () {
+	                getData();
+	                refreshCoins();
 	            });
 
 	            function doesContainArrayElements(text, array) {
@@ -43272,7 +43280,7 @@
 	                    console.log('HOVER ', hoverEl);
 	                    $http({
 	                        method: 'GET',
-	                        url: '/api/tweets/' + hoverEl.tweets.date + '/' + $scope.config.product
+	                        url: '/api/tweets/' + hoverEl.tweets.date + '/' + $scope.config.product + '/' + $scope.config.exclusive
 	                    }).then(function (response) {
 	                        console.log(response);
 	                        $scope.current = response.data;
@@ -43321,19 +43329,22 @@
 	            });
 	            */
 
-	            $http({
-	                method: 'GET',
-	                url: '/api/markets/bittrex'
-	            }).then(function (response) {
+	            function refreshCoins() {
+	                $http({
+	                    method: 'GET',
+	                    url: '/api/markets/bittrex/' + $scope.config.exclusive
+	                }).then(function (response) {
 
-	                for (var x = 0; x < response.data.length; x++) {
-	                    response.data[x].change = (response.data[x].Last - response.data[x].PrevDay) / response.data[x].PrevDay * 100;
-	                    response.data[x].coin = response.data[x].MarketName.split('-')[1];
-	                }
-	                console.log('ADASDASD', response);
+	                    for (var x = 0; x < response.data.length; x++) {
+	                        response.data[x].change = (response.data[x].Last - response.data[x].PrevDay) / response.data[x].PrevDay * 100;
+	                        response.data[x].coin = response.data[x].MarketName.split('-')[1];
+	                    }
+	                    console.log('ADASDASD', response);
 
-	                $scope.markets = response.data;
-	            });
+	                    $scope.markets = response.data;
+	                });
+	            }
+	            refreshCoins();
 
 	            function getData() {
 
@@ -43360,7 +43371,7 @@
 
 	                    $http({
 	                        method: 'GET',
-	                        url: '/api/tweets/' + $scope.config.product
+	                        url: '/api/tweets/' + $scope.config.product + '/' + $scope.config.exclusive
 	                    }).then(function (response2) {
 
 	                        console.log('MORE DATA', response2);
@@ -61094,7 +61105,7 @@
 /* 311 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"view-container\">\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\" ng-if=\"current.positive.length > 0\">\n              <!--  <div class=\"count\">{{current.positive.length}}</div> -->\n                {{current.positive.length}} Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\" ng-if=\"current.neutral.length > 0\">\n              <!--  <div class=\"count\">{{current.neutral.length}}</div>-->\n                {{current.neutral.length}} Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\" ng-if=\"current.negative.length > 0\">\n              <!--  <div class=\"count\">{{current.negative.length}}</div>-->\n                {{current.negative.length}} Negative</div>\n        </div>\n    </div>\n\n    <div class=\"summary\">\n        <div class=\"coin\"> {{config.product}}</div>\n        <div class=\"date\">\n            {{config.date | date : 'short'}}\n        </div>\n        <div class=\"price\">\n           {{config.price}}\n        </div>\n    </div>\n\n    <div class=\"settings\">\n\n        <div class=\"market-list\">\n\n            <table>\n                <thead>\n                <tr>\n                    <th ng-click=\"sortCoins('coin')\">Coin</th>\n                    <th ng-click=\"sortCoins('change')\">Change</th>\n                    <th ng-click=\"sortCoins('tweets')\">Tweets</th>\n                    <th ng-click=\"sortCoins('users')\">Users</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr ng-repeat=\"market in markets  | orderBy:sortVal\" ng-click=\"changeMarket(market.MarketName)\">\n                    <td>{{market.coin}}</td>\n                    <td>{{market.change.toFixed(0)}}%</td>\n                    <td>{{market.tweets}}</td>\n                    <td>{{market.users}}</td>\n                </tr>\n                </tbody>\n            </table>\n\n        </div>\n\n\n        <!--\n        <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        -->\n    </div>\n\n</div>"
+	module.exports = "<div class=\"view-container\">\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\" ng-if=\"current.positive.length > 0\">\n              <!--  <div class=\"count\">{{current.positive.length}}</div> -->\n                {{current.positive.length}} Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\" ng-if=\"current.neutral.length > 0\">\n              <!--  <div class=\"count\">{{current.neutral.length}}</div>-->\n                {{current.neutral.length}} Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\" ng-if=\"current.negative.length > 0\">\n              <!--  <div class=\"count\">{{current.negative.length}}</div>-->\n                {{current.negative.length}} Negative</div>\n        </div>\n    </div>\n\n    <div class=\"summary\">\n        <div class=\"coin\"> {{config.product}} <input type=\"checkbox\" ng-model = \"config.exclusive\"></div>\n        <div class=\"date\">\n            {{config.date | date : 'short'}}\n        </div>\n        <div class=\"price\">\n           {{config.price}}\n        </div>\n    </div>\n\n    <div class=\"settings\">\n\n        <div class=\"market-list\">\n\n            <table>\n                <thead>\n                <tr>\n                    <th ng-click=\"sortCoins('coin')\">Coin</th>\n                    <th ng-click=\"sortCoins('change')\">Change</th>\n                    <th ng-click=\"sortCoins('tweets')\">Tweets</th>\n                    <th ng-click=\"sortCoins('users')\">Users</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr ng-repeat=\"market in markets  | orderBy:sortVal\" ng-click=\"changeMarket(market.MarketName)\">\n                    <td>{{market.coin}}</td>\n                    <td>{{market.change.toFixed(0)}}%</td>\n                    <td>{{market.tweets}}</td>\n                    <td>{{market.users}}</td>\n                </tr>\n                </tbody>\n            </table>\n\n        </div>\n\n\n        <!--\n        <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        -->\n    </div>\n\n</div>"
 
 /***/ },
 /* 312 */

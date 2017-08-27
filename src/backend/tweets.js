@@ -5,19 +5,26 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://cryptoUser:crypt0c000l@ds159493.mlab.com:59493/crypto_tweets";
 
 module.exports = {
-    coinTweetCounts: function () {
+    coinTweetCounts: function (singleMentionsOnly) {
         var promise = new Promise(function (resolve, reject) {
 
             MongoClient.connect(url, function (err, db) {
 
-                db.collection('tweets').aggregate([
-                    {$unwind : "$coins" },
-                    {$group: {
-                        _id : "$coins",
-                        "count": { "$sum": 1 },
-                        users: { $addToSet: "$userUpper" }
-                    }}]
-                ).toArray(function(err, results){
+                var config = [];
+
+                if(singleMentionsOnly) {
+                    config.push({$match : { 'coins' : {$size: 1} } });
+                }
+
+                config.push({$unwind : "$coins" });
+                config.push({$group: {
+                    _id : "$coins",
+                    "count": { "$sum": 1 },
+                    users: { $addToSet: "$userUpper" }
+                }})
+
+                db.collection('tweets').aggregate(config).toArray(function(err, results){
+                    console.log(err)
 
                     results.forEach(function (c) {
                         c.users = c.users.length;
@@ -32,26 +39,35 @@ module.exports = {
         return promise;
 
     },
-    hoursForCoin : function (coin) {
+    hoursForCoin : function (coin, singleMentionsOnly) {
         var promise = new Promise(function (resolve, reject) {
 
             MongoClient.connect(url, function (err, db) {
 
-                db.collection('tweets').aggregate([
-                    {$match: {"coins": {$in : [coin]}}},
-                    {$group: {
-                        _id : {
-                            year: {$year: "$date"},
-                            month: {$month: "$date"},
-                            day: {$dayOfMonth: "$date"},
-                            hour: {$hour: "$date"},
-                        },
-                        "sampleDate" : {"$first" : '$date'},
-                        "count": { "$sum": 1 },
-                        "neg": { "$sum": '$neg' },
-                        "pos": { "$sum": '$pos' }
-                    }}]
-                ).toArray(function(err, results){
+                var config = [];
+
+                if(singleMentionsOnly) {
+                    config.push({$match: {$and:[{"coins": {$in : [coin]}}, { 'coins' : {$size: 1} }]}});
+                } else {
+                    config.push({$match: {"coins": {$in : [coin]}}});
+                }
+
+                config.push({$group: {
+                    _id : {
+                        year: {$year: "$date"},
+                        month: {$month: "$date"},
+                        day: {$dayOfMonth: "$date"},
+                        hour: {$hour: "$date"},
+                    },
+                    "sampleDate" : {"$first" : '$date'},
+                    "count": { "$sum": 1 },
+                    "neg": { "$sum": '$neg' },
+                    "pos": { "$sum": '$pos' }
+                }})
+
+
+                db.collection('tweets').aggregate(config)
+                    .toArray(function(err, results){
                     console.log(results)
                     console.log(err)
                     resolve(results); // output all records
@@ -63,7 +79,7 @@ module.exports = {
 
         return promise;
     },
-    tweetsForHour: function (time, coin) {
+    tweetsForHour: function (time, coin, singleMentionsOnly) {
 
         time = Number(time);
 
@@ -78,21 +94,26 @@ module.exports = {
                 dtE.setHours(dtE.getHours() + 1);
                 dtE.setMinutes(0);
 
-                db.collection('tweets').find(
-                    {
-                        $and: [
-                            {
-                                date: {
-                                    $gte: dtS,
-                                    $lt: dtE
-                                }
-                            },
-                            {
-                                coins: {$in: [coin]}
+                var config = {
+                    $and: [
+                        {
+                            date: {
+                                $gte: dtS,
+                                $lt: dtE
                             }
-                        ]
-                    }
-                ).toArray(function (err, results) {
+                        },
+                        {
+                            coins: {$in: [coin]}
+                        }
+                    ]
+                };
+
+                if(singleMentionsOnly) {
+                    config.$and.push({ 'coins' : {$size: 1} });
+                }
+
+                db.collection('tweets').find(config)
+                    .toArray(function (err, results) {
 
                     var data = {
                         positive: [],

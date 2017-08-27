@@ -30,21 +30,28 @@ let directive = angular.module('twitter-timeline',[])
                             exchange : 'gdax',
                             product : 'MCO',
                             accounts : $scope.traders,
+                            exclusive: false
                         //    positiveTerms : positiveTerms.join(','),
                         //    negativeTerms : negativeTerms.join(',')
                         }
 
-
+/*
                         $scope.$watch('config.exchange', function () {
                             $http({
                                 method:'GET',
-                                url:'/api/products/'+$scope.config.exchange
+                                url:'/api/products/'+$scope.config.exchange+'/'+$scope.config.exclusive
                             }).then(function (response) {
                                 console.log(response)
 
                                 $scope.productOptions = response.data;
                             })
                         })
+*/
+
+                        $scope.$watch('config.exclusive', function () {
+                            getData ();
+                            refreshCoins ();
+                        });
 
                         function doesContainArrayElements(text, array) {
                             var contains = false;
@@ -94,7 +101,7 @@ let directive = angular.module('twitter-timeline',[])
                                     console.log('HOVER ',hoverEl)
                                     $http({
                                         method:'GET',
-                                        url:'/api/tweets/'+hoverEl.tweets.date+'/'+$scope.config.product
+                                        url:'/api/tweets/'+hoverEl.tweets.date+'/'+$scope.config.product+'/'+$scope.config.exclusive
                                     }).then(function (response) {
                                         console.log(response);
                                         $scope.current = response.data;
@@ -147,19 +154,23 @@ let directive = angular.module('twitter-timeline',[])
                         });
                         */
 
-                        $http({
-                            method:'GET',
-                            url:'/api/markets/bittrex'
-                        }).then(function (response) {
+                        function refreshCoins () {
+                            $http({
+                                method:'GET',
+                                url:'/api/markets/bittrex/'+$scope.config.exclusive
+                            }).then(function (response) {
 
-                            for(var x =0; x  < response.data.length; x++) {
-                                response.data[x].change = ((response.data[x].Last-response.data[x].PrevDay)/response.data[x].PrevDay*100);
-                                response.data[x].coin = response.data[x].MarketName.split('-')[1];
-                            }
-                            console.log('ADASDASD', response)
+                                for(var x =0; x  < response.data.length; x++) {
+                                    response.data[x].change = ((response.data[x].Last-response.data[x].PrevDay)/response.data[x].PrevDay*100);
+                                    response.data[x].coin = response.data[x].MarketName.split('-')[1];
+                                }
+                                console.log('ADASDASD', response)
 
-                            $scope.markets = response.data;
-                        });
+                                $scope.markets = response.data;
+                            });
+
+                        }
+                        refreshCoins ();
 
 
                         function getData () {
@@ -187,7 +198,7 @@ let directive = angular.module('twitter-timeline',[])
 
                                 $http({
                                     method:'GET',
-                                    url:'/api/tweets/'+$scope.config.product
+                                    url:'/api/tweets/'+$scope.config.product+'/'+$scope.config.exclusive
                                 }).then(function (response2) {
 
                                     console.log('MORE DATA',response2)

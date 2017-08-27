@@ -26,7 +26,7 @@
     </div>
 
     <div class="summary">
-        <div class="coin"> {{config.product}}</div>
+        <div class="coin"> {{config.product}} <input type="checkbox" ng-model = "config.exclusive"></div>
         <div class="date">
             {{config.date | date : 'short'}}
         </div>
