@@ -5,7 +5,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://cryptoUser:crypt0c000l@ds159493.mlab.com:59493/crypto_tweets";
 
 module.exports = {
-    coinTweetCounts: function (singleMentionsOnly) {
+    coinTweetCounts: function (singleMentionsOnly, tweetFilter) {
         var promise = new Promise(function (resolve, reject) {
 
             MongoClient.connect(url, function (err, db) {
@@ -13,7 +13,26 @@ module.exports = {
                 var config = [];
 
                 if(singleMentionsOnly) {
-                    config.push({$match : { 'coins' : {$size: 1} } });
+                    config.push({$match : {$and : [{ 'coins' : {$size: 1} }]} });
+                }
+
+
+                if(tweetFilter && tweetFilter != 'undefined' && tweetFilter != '') {
+
+                    if(config.length !=0) {
+                        config[0].$match.$and.push({
+                            $text: {
+                                $search: tweetFilter,
+                                $caseSensitive: false
+                            }
+                        } );
+                    } else {
+                        config.push({$match : {$and : [{$text: {
+                            $search: tweetFilter,
+                            $caseSensitive: false
+                        }}]} });
+
+                    }
                 }
 
                 config.push({$unwind : "$coins" });
@@ -39,18 +58,33 @@ module.exports = {
         return promise;
 
     },
-    hoursForCoin : function (coin, singleMentionsOnly) {
+    hoursForCoin : function (coin, singleMentionsOnly, tweetFilter) {
         var promise = new Promise(function (resolve, reject) {
 
             MongoClient.connect(url, function (err, db) {
 
                 var config = [];
 
+                var filter = {
+                    $match: {
+                        $and:[{"coins": {$in : [coin]}}]
+                    }
+                };
+
                 if(singleMentionsOnly) {
-                    config.push({$match: {$and:[{"coins": {$in : [coin]}}, { 'coins' : {$size: 1} }]}});
-                } else {
-                    config.push({$match: {"coins": {$in : [coin]}}});
+                    filter.$match.$and.push({'coins' : {$size: 1} });
                 }
+
+                if(tweetFilter && tweetFilter != 'undefined' && tweetFilter != '') {
+                    filter.$match.$and.push({
+                            $text: {
+                                $search: tweetFilter,
+                                $caseSensitive: false
+                            }
+                    } );
+                }
+
+                config.push(filter)
 
                 config.push({$group: {
                     _id : {
@@ -68,7 +102,7 @@ module.exports = {
 
                 db.collection('tweets').aggregate(config)
                     .toArray(function(err, results){
-                    console.log(results)
+               //     console.log(results)
                     console.log(err)
                     resolve(results); // output all records
                     db.close();
@@ -79,7 +113,7 @@ module.exports = {
 
         return promise;
     },
-    tweetsForHour: function (time, coin, singleMentionsOnly) {
+    tweetsForHour: function (time, coin, singleMentionsOnly, tweetFilter) {
 
         time = Number(time);
 
@@ -110,6 +144,15 @@ module.exports = {
 
                 if(singleMentionsOnly) {
                     config.$and.push({ 'coins' : {$size: 1} });
+                }
+
+                if(tweetFilter && tweetFilter != 'undefined' && tweetFilter != '') {
+                    config.$and.push({
+                        $text: {
+                            $search: tweetFilter,
+                            $caseSensitive: false
+                        }
+                    } );
                 }
 
                 db.collection('tweets').find(config)

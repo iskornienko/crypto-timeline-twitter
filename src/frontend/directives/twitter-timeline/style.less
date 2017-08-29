@@ -126,7 +126,7 @@ svg {
   width: 175px;
   right: 0;
   top: 0px;
-  height: 79px;
+  height: 179px;
   text-align: center;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
@@ -151,7 +151,7 @@ svg {
   position: absolute;
   width: 195px;
   right: 0;
-  top: 100px;
+  top: 200px;
   overflow: scroll;
   bottom: 0px;
   border-left: 1px solid black;
@@ -174,3 +174,38 @@ svg {
   }
 }
 
+.filters {
+  text-align: left;
+
+  margin-top: 4px;
+
+
+  .filter {
+    display: block;
+    margin-top: 2px;
+
+    label {
+      font-size: 12px;
+      display: block;
+
+    }
+    input, select {
+      width: 100%;
+    }
+
+    &.inline {
+
+
+      label {
+        display: inline;
+      }
+
+      input, select {
+        width: auto;
+      }
+
+    }
+
+  }
+
+}

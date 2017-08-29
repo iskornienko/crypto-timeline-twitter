@@ -43230,8 +43230,8 @@
 	                                        })
 	                */
 
-	            };$scope.$watch('config.exclusive', function () {
-	                getData();
+	            };$scope.$watchCollection('[config.exclusive,config.tweetFilter]', function () {
+	                getTweeetData();
 	                refreshCoins();
 	            });
 
@@ -43280,7 +43280,7 @@
 	                    console.log('HOVER ', hoverEl);
 	                    $http({
 	                        method: 'GET',
-	                        url: '/api/tweets/' + hoverEl.tweets.date + '/' + $scope.config.product + '/' + $scope.config.exclusive
+	                        url: '/api/tweets/' + hoverEl.tweets.date + '/' + $scope.config.product + '?exclusive=' + $scope.config.exclusive + '&tweetFilter=' + encodeURI($scope.config.tweetFilter)
 	                    }).then(function (response) {
 	                        console.log(response);
 	                        $scope.current = response.data;
@@ -43332,7 +43332,7 @@
 	            function refreshCoins() {
 	                $http({
 	                    method: 'GET',
-	                    url: '/api/markets/bittrex/' + $scope.config.exclusive
+	                    url: '/api/markets/bittrex?exclusive=' + $scope.config.exclusive + '&tweetFilter=' + encodeURI($scope.config.tweetFilter)
 	                }).then(function (response) {
 
 	                    for (var x = 0; x < response.data.length; x++) {
@@ -43344,7 +43344,7 @@
 	                    $scope.markets = response.data;
 	                });
 	            }
-	            refreshCoins();
+	            //      refreshCoins ();
 
 	            $http({
 	                method: 'GET',
@@ -43353,39 +43353,36 @@
 	                $scope.btcChartData = response.data;
 	            });
 
+	            function getTweeetData() {
+
+	                $http({
+	                    method: 'GET',
+	                    url: '/api/tweets/' + $scope.config.product + '?exclusive=' + $scope.config.exclusive + '&tweetFilter=' + encodeURI($scope.config.tweetFilter)
+	                }).then(function (response2) {
+
+	                    console.log('MORE DATA', response2);
+
+	                    $scope.tweetData = response2.data;
+	                    drawChart();
+	                }, function (response) {});
+	            }
+
 	            function getData() {
 
 	                $http({
 	                    method: 'GET',
 	                    url: '/api/candles/BTC-' + $scope.config.product
 	                }).then(function (response) {
-	                    /*
-	                                                    var last = response.data[response.data.length-1];
-	                                                    response.data.push([
-	                                                        last[0]+60*60,
-	                                                        last[1],
-	                                                        last[2],
-	                                                        last[3],
-	                                                        last[4],
-	                                                        last[5]
-	                                                    ])*/
 
 	                    $scope.chartData = response.data;
 	                    $scope.tweetData = [];
 
+	                    $scope.config.date = response.data[response.data.length - 1][0] * 1000;
+	                    $scope.config.price = response.data[response.data.length - 1][4];
+
 	                    console.log('MORE DATA');
 	                    //    drawChart ();
-
-	                    $http({
-	                        method: 'GET',
-	                        url: '/api/tweets/' + $scope.config.product + '/' + $scope.config.exclusive
-	                    }).then(function (response2) {
-
-	                        console.log('MORE DATA', response2);
-
-	                        $scope.tweetData = response2.data;
-	                        drawChart();
-	                    }, function (response) {});
+	                    getTweeetData();
 	                }, function (response) {});
 	            }
 
@@ -43459,7 +43456,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\n  font-family: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  font-size: 14px;\n  border: 1px solid #888;\n  border-radius: 4px;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.summary {\n  padding: 10px 10px;\n  position: absolute;\n  width: 175px;\n  right: 0;\n  top: 0px;\n  height: 79px;\n  text-align: center;\n  border-left: 1px solid black;\n  border-bottom: 1px solid black;\n}\n.summary .coin {\n  display: block;\n  font-size: 30px;\n  font-weight: bold;\n  color: steelblue;\n}\n.summary .date {\n  margin-top: 5px;\n  font-size: 14px;\n}\n.summary .price {\n  margin-top: 5px;\n  font-size: 18px;\n}\n.settings {\n  position: absolute;\n  width: 195px;\n  right: 0;\n  top: 100px;\n  overflow: scroll;\n  bottom: 0px;\n  border-left: 1px solid black;\n}\n.market-list table {\n  width: 100%;\n  font-size: 12px;\n  border-collapse: collapse;\n}\n.market-list table td {\n  text-align: center;\n}\n.market-list table tr:hover {\n  background-color: #eeeeee;\n  cursor: pointer;\n}\n", ""]);
+	exports.push([module.id, "body {\n  font-family: Roboto;\n}\nsvg,\nhtml,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n}\nsvg {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n.selected-point {\n  height: 300px;\n  width: 500px;\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  padding: 0px 10px;\n}\n.selected-point .scroll-list {\n  overflow: scroll;\n  height: 100%;\n}\n.selected-point .tab-bar {\n  position: absolute;\n  bottom: 0;\n  right: 4px;\n  text-align: right;\n}\n.selected-point .tab-bar .tab {\n  position: relative;\n  cursor: pointer;\n  padding: 4px 10px;\n  font-size: 14px;\n  border: 1px solid #888;\n  border-radius: 4px;\n  background-color: white;\n  color: #888;\n  display: inline-block;\n  text-transform: uppercase;\n}\n.selected-point .tab-bar .tab.selected {\n  background-color: #888;\n  color: white;\n}\n.selected-point .tab-bar .tab .count {\n  position: absolute;\n  right: 0;\n  top: -16px;\n  background-color: white;\n  border-radius: 20px;\n  padding: 2px 4px;\n  font-size: 8pt;\n  color: #888;\n  border: 1px solid #888;\n}\n.selected-point .tab-bar .tab.negative {\n  background-color: white;\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative .count {\n  color: #d43f3a;\n  border-color: #d43f3a;\n}\n.selected-point .tab-bar .tab.negative.selected {\n  background-color: #d43f3a;\n  color: white;\n}\n.selected-point .tab-bar .tab.positive {\n  background-color: white;\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive .count {\n  color: #4cae4c;\n  border-color: #4cae4c;\n}\n.selected-point .tab-bar .tab.positive.selected {\n  background-color: #4cae4c;\n  color: white;\n}\n.summary {\n  padding: 10px 10px;\n  position: absolute;\n  width: 175px;\n  right: 0;\n  top: 0px;\n  height: 179px;\n  text-align: center;\n  border-left: 1px solid black;\n  border-bottom: 1px solid black;\n}\n.summary .coin {\n  display: block;\n  font-size: 30px;\n  font-weight: bold;\n  color: steelblue;\n}\n.summary .date {\n  margin-top: 5px;\n  font-size: 14px;\n}\n.summary .price {\n  margin-top: 5px;\n  font-size: 18px;\n}\n.settings {\n  position: absolute;\n  width: 195px;\n  right: 0;\n  top: 200px;\n  overflow: scroll;\n  bottom: 0px;\n  border-left: 1px solid black;\n}\n.market-list table {\n  width: 100%;\n  font-size: 12px;\n  border-collapse: collapse;\n}\n.market-list table td {\n  text-align: center;\n}\n.market-list table tr:hover {\n  background-color: #eeeeee;\n  cursor: pointer;\n}\n.filters {\n  text-align: left;\n  margin-top: 4px;\n}\n.filters .filter {\n  display: block;\n  margin-top: 2px;\n}\n.filters .filter label {\n  font-size: 12px;\n  display: block;\n}\n.filters .filter input,\n.filters .filter select {\n  width: 100%;\n}\n.filters .filter.inline label {\n  display: inline;\n}\n.filters .filter.inline input,\n.filters .filter.inline select {\n  width: auto;\n}\n", ""]);
 
 	// exports
 
@@ -43858,6 +43855,15 @@
 	        yBTC.domain([yExtentBTC[0] - spacing, yExtentBTC[1] + spacing]);
 
 	        var pathBTC = svg.append("path").data([btcChartData]).attr("class", "line-btc").attr("d", valuelineBTC);
+
+	        /*
+	        svg.append("text")
+	            .attr("class", "current")
+	            .attr("x", 100)
+	            .attr("y", function (d)  {return yBTC(d);})
+	            .attr("dy", ".35em")
+	            .text('HAI');
+	        */
 
 	        var tCountY = d3.scaleLinear().range([0, height / 1.8]);
 	        var tCountYExtent = d3.extent(tweets, function (d) {
@@ -61128,7 +61134,7 @@
 /* 311 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"view-container\">\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\" ng-if=\"current.positive.length > 0\">\n              <!--  <div class=\"count\">{{current.positive.length}}</div> -->\n                {{current.positive.length}} Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\" ng-if=\"current.neutral.length > 0\">\n              <!--  <div class=\"count\">{{current.neutral.length}}</div>-->\n                {{current.neutral.length}} Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\" ng-if=\"current.negative.length > 0\">\n              <!--  <div class=\"count\">{{current.negative.length}}</div>-->\n                {{current.negative.length}} Negative</div>\n        </div>\n    </div>\n\n    <div class=\"summary\">\n        <div class=\"coin\"> {{config.product}} <input type=\"checkbox\" ng-model = \"config.exclusive\"></div>\n        <div class=\"date\">\n            {{config.date | date : 'short'}}\n        </div>\n        <div class=\"price\">\n           {{config.price}}\n        </div>\n    </div>\n\n    <div class=\"settings\">\n\n        <div class=\"market-list\">\n\n            <table>\n                <thead>\n                <tr>\n                    <th ng-click=\"sortCoins('coin')\">Coin</th>\n                    <th ng-click=\"sortCoins('change')\">Change</th>\n                    <th ng-click=\"sortCoins('tweets')\">Tweets</th>\n                    <th ng-click=\"sortCoins('users')\">Users</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr ng-repeat=\"market in markets  | orderBy:sortVal\" ng-click=\"changeMarket(market.MarketName)\">\n                    <td>{{market.coin}}</td>\n                    <td>{{market.change.toFixed(0)}}%</td>\n                    <td>{{market.tweets}}</td>\n                    <td>{{market.users}}</td>\n                </tr>\n                </tbody>\n            </table>\n\n        </div>\n\n\n        <!--\n        <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        -->\n    </div>\n\n</div>"
+	module.exports = "<div class=\"view-container\">\n    <svg>\n    </svg>\n\n    <div class=\"selected-point\" ng-show=\"current\">\n        <div class=\"scroll-list\">\n            <div class=\"tweet-list\">\n           <!--    <div id=\"container\"></div> -->\n\n                <div ng-repeat=\"item in currentTweetList\" id=\"tweet-container-{{item}}\" class=\"displayed-tweets\"></div>\n\n\n            </div>\n        </div>\n        <div class=\"tab-bar\">\n            <div class=\"tab positive\" ng-click=\"setTab('positive')\" ng-class=\"{'selected':cTab=='positive'}\" ng-if=\"current.positive.length > 0\">\n              <!--  <div class=\"count\">{{current.positive.length}}</div> -->\n                {{current.positive.length}} Positive</div>\n            <div class=\"tab\" ng-click=\"setTab('neutral')\" ng-class=\"{'selected':cTab=='neutral'}\" ng-if=\"current.neutral.length > 0\">\n              <!--  <div class=\"count\">{{current.neutral.length}}</div>-->\n                {{current.neutral.length}} Neutral</div>\n            <div class=\"tab negative\" ng-click=\"setTab('negative')\" ng-class=\"{'selected':cTab=='negative'}\" ng-if=\"current.negative.length > 0\">\n              <!--  <div class=\"count\">{{current.negative.length}}</div>-->\n                {{current.negative.length}} Negative</div>\n        </div>\n    </div>\n\n    <div class=\"summary\">\n        <div class=\"coin\"> {{config.product}}</div>\n        <div class=\"date\">\n            {{config.date | date : 'short'}}\n        </div>\n        <div class=\"price\">\n           {{config.price}}\n        </div>\n        <div class=\"filters\">\n            <div class=\"filter inline\">\n\n                <input type=\"checkbox\" ng-model = \"config.exclusive\">\n                <label>Solo mentions only.</label>\n            </div>\n            <div class=\"filter\">\n                <label>Tweet body contains:</label>\n                <input type=\"text\" ng-model = \"config.tweetFilter\"  ng-model-options=\"{ debounce: 400 }\"></div>\n\n            <div class=\"filter\">\n                <label>Tweet author:</label>\n                <select ng-model=\"config.tweetAuthor\">\n                    <option>All</option>\n                </select>\n            </div>\n            </div>\n    </div>\n\n    <div class=\"settings\">\n\n        <div class=\"market-list\">\n\n            <table>\n                <thead>\n                <tr>\n                    <th ng-click=\"sortCoins('coin')\">Coin</th>\n                    <th ng-click=\"sortCoins('change')\">Change</th>\n                    <th ng-click=\"sortCoins('tweets')\">Tweets</th>\n                    <th ng-click=\"sortCoins('users')\">Users</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr ng-repeat=\"market in markets  | orderBy:sortVal\" ng-click=\"changeMarket(market.MarketName)\">\n                    <td>{{market.coin}}</td>\n                    <td>{{market.change.toFixed(0)}}%</td>\n                    <td>{{market.tweets}}</td>\n                    <td>{{market.users}}</td>\n                </tr>\n                </tbody>\n            </table>\n\n        </div>\n\n\n        <!--\n        <select ng-model=\"config.product\">\n        <option ng-repeat=\"option in productOptions\" value=\"{{option.id}}\">{{option.display_name}}</option>\n    </select><br>\n        Twitter Accounts: <select ng-model=\"config.accounts\" multiple>\n        <option ng-repeat=\"option in traders\" value=\"{{option}}\">{{option}}</option>\n    </select><br>\n        Twitter Filter: <textarea ng-model=\"config.filter\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Positive Terms: <textarea ng-model=\"config.positiveTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        Negative Terms: <textarea ng-model=\"config.negativeTerms\" type=\"text\" spellcheck=\"false\"></textarea><br>\n        -->\n    </div>\n\n</div>"
 
 /***/ },
 /* 312 */

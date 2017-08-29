@@ -73,6 +73,14 @@ export default {
             .attr("class", "line-btc")
             .attr("d", valuelineBTC);
 
+        /*
+        svg.append("text")
+            .attr("class", "current")
+            .attr("x", 100)
+            .attr("y", function (d)  {return yBTC(d);})
+            .attr("dy", ".35em")
+            .text('HAI');
+*/
 
         var tCountY = d3.scaleLinear().range([0,height/1.8]);
         var tCountYExtent = d3.extent(tweets, function(d) { return d.count; });

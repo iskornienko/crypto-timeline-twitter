@@ -48,8 +48,8 @@ let directive = angular.module('twitter-timeline',[])
                         })
 */
 
-                        $scope.$watch('config.exclusive', function () {
-                            getData ();
+                        $scope.$watchCollection('[config.exclusive,config.tweetFilter]', function () {
+                            getTweeetData()
                             refreshCoins ();
                         });
 
@@ -101,7 +101,7 @@ let directive = angular.module('twitter-timeline',[])
                                     console.log('HOVER ',hoverEl)
                                     $http({
                                         method:'GET',
-                                        url:'/api/tweets/'+hoverEl.tweets.date+'/'+$scope.config.product+'/'+$scope.config.exclusive
+                                        url:'/api/tweets/'+hoverEl.tweets.date+'/'+$scope.config.product+'?exclusive='+$scope.config.exclusive+'&tweetFilter='+encodeURI($scope.config.tweetFilter)
                                     }).then(function (response) {
                                         console.log(response);
                                         $scope.current = response.data;
@@ -157,7 +157,7 @@ let directive = angular.module('twitter-timeline',[])
                         function refreshCoins () {
                             $http({
                                 method:'GET',
-                                url:'/api/markets/bittrex/'+$scope.config.exclusive
+                                url:'/api/markets/bittrex?exclusive='+$scope.config.exclusive+'&tweetFilter='+encodeURI($scope.config.tweetFilter)
                             }).then(function (response) {
 
                                 for(var x =0; x  < response.data.length; x++) {
@@ -170,7 +170,7 @@ let directive = angular.module('twitter-timeline',[])
                             });
 
                         }
-                        refreshCoins ();
+                  //      refreshCoins ();
 
                         $http({
                             method:'GET',
@@ -179,6 +179,22 @@ let directive = angular.module('twitter-timeline',[])
                             $scope.btcChartData = response.data;
                         });
 
+                        function getTweeetData() {
+
+                            $http({
+                                method:'GET',
+                                url:'/api/tweets/'+$scope.config.product+'?exclusive='+$scope.config.exclusive+'&tweetFilter='+encodeURI($scope.config.tweetFilter)
+                            }).then(function (response2) {
+
+                                console.log('MORE DATA',response2)
+
+                                $scope.tweetData = response2.data;
+                                drawChart ();
+
+                            }, function (response) {
+                            })
+                        }
+
 
                         function getData () {
 
@@ -186,35 +202,17 @@ let directive = angular.module('twitter-timeline',[])
                                 method:'GET',
                                 url:'/api/candles/BTC-'+$scope.config.product
                             }).then(function (response) {
-/*
-                                var last = response.data[response.data.length-1];
-                                response.data.push([
-                                    last[0]+60*60,
-                                    last[1],
-                                    last[2],
-                                    last[3],
-                                    last[4],
-                                    last[5]
-                                ])*/
 
                                 $scope.chartData = response.data;
                                 $scope.tweetData = [];
 
+                                $scope.config.date = response.data[response.data.length-1][0]*1000;
+                                $scope.config.price = response.data[response.data.length-1][4];
+
+
                                 console.log('MORE DATA')
                             //    drawChart ();
-
-                                $http({
-                                    method:'GET',
-                                    url:'/api/tweets/'+$scope.config.product+'/'+$scope.config.exclusive
-                                }).then(function (response2) {
-
-                                    console.log('MORE DATA',response2)
-
-                                    $scope.tweetData = response2.data;
-                                    drawChart ();
-
-                                }, function (response) {
-                                })
+                                getTweeetData ();
 
 
                             }, function (response) {

@@ -26,13 +26,30 @@
     </div>
 
     <div class="summary">
-        <div class="coin"> {{config.product}} <input type="checkbox" ng-model = "config.exclusive"></div>
+        <div class="coin"> {{config.product}}</div>
         <div class="date">
             {{config.date | date : 'short'}}
         </div>
         <div class="price">
            {{config.price}}
         </div>
+        <div class="filters">
+            <div class="filter inline">
+
+                <input type="checkbox" ng-model = "config.exclusive">
+                <label>Solo mentions only.</label>
+            </div>
+            <div class="filter">
+                <label>Tweet body contains:</label>
+                <input type="text" ng-model = "config.tweetFilter"  ng-model-options="{ debounce: 400 }"></div>
+
+            <div class="filter">
+                <label>Tweet author:</label>
+                <select ng-model="config.tweetAuthor">
+                    <option>All</option>
+                </select>
+            </div>
+            </div>
     </div>
 
     <div class="settings">

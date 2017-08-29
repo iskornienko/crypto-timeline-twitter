@@ -37,10 +37,13 @@ app.get('/api/candles/:product', (request, response) => {
 
 
 
-app.get('/api/markets/:market/:exclusive', (request, response) => {
+app.get('/api/markets/:market', (request, response) => {
+
+
+
 
     bittrex.allBTCMarkets().then(function (data) {
-        tweets.coinTweetCounts( request.params.exclusive=='true').then(function (tweetCounts) {
+        tweets.coinTweetCounts( request.query.exclusive=='true', request.query.tweetFilter).then(function (tweetCounts) {
             for(var x = 0 ; x < data.length; x++) {
                 data[x].tweets = 0;
                 data[x].users = 0;
@@ -58,10 +61,11 @@ app.get('/api/markets/:market/:exclusive', (request, response) => {
     })
 });
 
-app.get('/api/tweets/:coin/:exclusive', (request, response) => {
+app.get('/api/tweets/:coin', (request, response) => {
 
 
-    tweets.hoursForCoin(request.params.coin, request.params.exclusive == 'true').then(function (data) {
+
+    tweets.hoursForCoin(request.params.coin, request.query.exclusive == 'true', request.query.tweetFilter).then(function (data) {
 
         response.send(data.map(function (tick) {
 
@@ -84,11 +88,12 @@ app.get('/api/tweets/:coin/:exclusive', (request, response) => {
 
 
 });
-app.get('/api/tweets/:hour/:coin/:exclusive', (request, response) => {
+app.get('/api/tweets/:hour/:coin', (request, response) => {
+
 
     console.log(request.params)
 
-    tweets.tweetsForHour(request.params.hour, request.params.coin, request.params.exclusive == 'true').then(
+    tweets.tweetsForHour(request.params.hour, request.params.coin, request.query.exclusive == 'true', request.query.tweetFilter).then(
         function (data) {
             response.send(data);
         }

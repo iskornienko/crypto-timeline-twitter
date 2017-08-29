@@ -8,25 +8,45 @@ bittrex.options({
 });
 
 
+var lastMarketDataDate;
+var lastMarketData;
+
 module.exports = {
     allBTCMarkets: function () {
+        console.log('LAST');
         var promise = new Promise(function (resolve, reject) {
 
-            bittrex.getmarketsummaries( function( data, err ) {
+            console.log('LAST', (new Date()).getTime());
 
-                var allBTCMarkets = [];
 
-                data.result.forEach(function (cur) {
-                    if(cur.MarketName.indexOf('BTC') == 0) {
-                        //this is a bitcoin market
+       /*     if(lastMarketDataDate && ((new Date()).getTime() - lastMarketDataDate.getTime() < 1000*30)) {
 
-                        allBTCMarkets.push(cur);
-                    }
-                })
+
+                console.log('LAST', (new Date()).getTime(), lastMarketDataDate.getTime(), (new Date()).getTime() - lastMarketDataDate.getTime());
 
                 resolve(allBTCMarkets);
+            } else { */
+                bittrex.getmarketsummaries( function( data, err ) {
 
-            })
+                    var allBTCMarkets = [];
+
+                    data.result.forEach(function (cur) {
+                        if(cur.MarketName.indexOf('BTC') == 0) {
+                            //this is a bitcoin market
+
+                            allBTCMarkets.push(cur);
+                        }
+                    })
+
+              //      lastMarketDataDate = new Date();
+                //    lastMarketData = allBTCMarkets;
+
+                    resolve(allBTCMarkets);
+
+                })
+
+      //      }
+
         })
 
         return promise;
@@ -68,7 +88,7 @@ module.exports = {
                 })
 
                 var hours  = 24*2*5;
-                console.log(data);
+            //  console.log(data);
 
                 resolve(data.slice(data.length-hours, data.length));
             });
