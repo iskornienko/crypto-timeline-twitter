@@ -97,6 +97,7 @@ let directive = angular.module('twitter-timeline',[])
                                 function (hoverEl) {
 
                                     $scope.current = hoverEl;
+                                    console.log(hoverEl)
 
                                     console.log('HOVER ',hoverEl)
                                     $http({

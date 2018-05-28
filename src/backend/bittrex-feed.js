@@ -1,11 +1,11 @@
 
+
+var credentials = require('../../credentials.js');
+
 var Promise = require('promise');
 
 var bittrex = require('node.bittrex.api');
-bittrex.options({
-    'apikey' : 'b855cb15e7f44fe0a579f85ddb5367e5',
-    'apisecret' : 'd07800fe63e14e84990c3ceedc4c097d',
-});
+bittrex.options(credentials.bittrex);
 
 
 var lastMarketDataDate;

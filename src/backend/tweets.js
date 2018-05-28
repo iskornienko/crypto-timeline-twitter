@@ -1,8 +1,11 @@
 
 var Promise = require('promise');
 
+
+var credentials = require('../../credentials.js');
+
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://cryptoUser:crypt0c000l@ds159493.mlab.com:59493/crypto_tweets";
+var url = credentials.mongo;
 
 module.exports = {
     coinTweetCounts: function (singleMentionsOnly, tweetFilter) {

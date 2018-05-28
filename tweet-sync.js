@@ -13,17 +13,14 @@ var sendRequest = require('request');
 
 var Promise = require('promise');
 
-var client = new Twitter({
-    consumer_key: 'lX037W1t236Ds3dOnEQ2xqgZu',
-    consumer_secret: 'DNyhobKXlfgXdN55YnXrymwkJf1fiwG5c6gakES2BbeuzScZcN',
-    access_token_key: '1417015712-24OCSJkV3wqo3gsBIWmT8YR0rGoJ2A45osCrU2e',
-    access_token_secret: 'ghob0vrcCKkA3iPs4Sw6n8NmV0Y6eZk5UY0FcuNizOjoJ'
-});
+var credentials = require('./credentials.js');
+
+var client = new Twitter(credentials.twitter);
 
 
 var MongoClient = require('mongodb').MongoClient;
 //var url = "mongodb://127.0.0.1:27017/crypto-twitter";
-var url = "mongodb://cryptoUser:crypt0c000l@ds159493.mlab.com:59493/crypto_tweets";
+var url = credentials.mongo;
 
 function getUserTweetsForAccountHelper(userName, currentData, max_id, endingMax, globalMax, callback) {
 
@@ -209,7 +206,7 @@ function tweetTransform(twit) {
     //    user: twit.user.screen_name,
     //    userStrId: twit.user.id_str,
         userUpper: twit.user.screen_name.toUpperCase(),
-        date: (new Date (twit.created_at)).getTime(),
+        date: new Date (twit.created_at),
     //    retweets: twit.retweet_count,
     //    favorites: twit.favorite_count,
         text: twit.text.replace(/(?:\r\n|\r|\n)/g, ' ')
@@ -287,7 +284,7 @@ MongoClient.connect(url, function (err, db) {
         })
 });*/
 
-/*
+
 bittrex.allBTCMarketCoins().then(function (allCoins) {
 
     MongoClient.connect(url, function (err, db) {
@@ -336,9 +333,7 @@ bittrex.allBTCMarketCoins().then(function (allCoins) {
         });
     });
 });
-*/
-/*
-*/
+
 
 
 
@@ -381,4 +376,4 @@ function getSearchTweets(max_id_str) {
 
 
 
-getSearchTweets()
+//getSearchTweets()
