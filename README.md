@@ -26,4 +26,4 @@ To run data collector:
 
 To run web app:
 
-`npm run dev`
+`npm run dev` & open browser to: http://localhost:3000/
