@@ -8,7 +8,7 @@ There seems to be a correlation between twitter sentiment about a given crypto c
 ### Current State
 Interesting algorithmic trading patterns emerged from this exercise. While looking broadly at all tweets proved useless due to shilling, focusing on specific traders and making instant trades based on positive or negative sentiment does seem promising. More research is necessary.  
 
-![Bus App Screenshot](https://github.com/iskornienko/zb-status/blob/master/sample-image.PNG?raw=true)
+![Crypto Timeline Screenshot](https://github.com/iskornienko/crypto-timeline-twitter/blob/master/sample-image.png?raw=true)
 
 ### Overview
 * Mongo is used for data storage
